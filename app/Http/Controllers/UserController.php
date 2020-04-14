@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Validator;
 use App\User;
 class UserController extends Controller
 {
+    /**
+     * Registra un usuario que envía los parametro por Json formato(x-www-form-urlencoded)
+     * @return el json con la respuesta y el codigo.
+     */
     public function register(Request $request)
     {       
        //Obtener los datos que envia el usuario por POST del request
@@ -33,16 +37,15 @@ class UserController extends Controller
                 //crea respuesta de error
                 $data = array(
                     'status' => 'error',
-                    'code' => '404',
+                    'code' => 404,
                     'message' => 'No se ha podido registrar el usuario',
                     'errors' => $validate->errors()
                 );
             } else {//Si no hay fallos de validación
                 //Cifrando la contraseña
-                // $pwd=hash('sha256',$params_array['password']);
-                $pwd=hash('sha256',$params->password);
-            
-                
+                $pwd=hash('sha256',$params_array['password']);
+                // $pwd=hash('sha256',$params->password);
+        
                 $user=new User();
                 $user->name=$params_array['name'];
                 $user->surname=$params_array['surname'];
@@ -52,7 +55,7 @@ class UserController extends Controller
                 $user->save();
                 $data = array(
                     'status' => 'succes',
-                    'code' => '200',
+                    'code' => 200,
                     'message' => ' usuario Creado correctamente',
                     // 'sinCifrar'=>$params->password,
                     // 'cifrada'=>$user->password,
@@ -62,11 +65,10 @@ class UserController extends Controller
         }else{
             $data = array(
                 'status' => 'failed',
-                'code' => '200',
+                'code' => 404,
                 'message' => ' datos enviados incorrectos'
             );
         }
         return response()->json($data, $data['code']);
     }
-
 }
