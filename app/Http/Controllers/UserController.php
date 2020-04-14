@@ -11,6 +11,14 @@ use Firebase\JWT\JWT;
 class UserController extends Controller
 {
     /**
+     * Agregando el Middleware de Autenticación
+     */
+    public function __construct(){
+        $this->middleware('api.auth',
+        ['except'=>['login','singup']]);
+    }
+
+    /**
      * Registra un usuario que envía los parametro por Json formato(x-www-form-urlencoded)
      * @return el json con la respuesta y el codigo.
      */
@@ -113,11 +121,55 @@ class UserController extends Controller
     public function update(Request $request){
         $token=$request->header('Authorization');//Authorization desde el frontend con el token
         $jwtAuth= new \JwtAuth();
-        $checkToken=$jwtAuth->checkToken($token);//verifica el token en Jwt
-        if($checkToken){
-            return "Token Veridico";
-        }else{
-            return "token Malo, No puedes";
+        // $checkToken=$jwtAuth->checkToken($token);//verifica el token en Jwt
+      
+        
+        //recoger los datos a actualizar del user por POST
+        $json=$request->input('json',null);
+        $params_array=json_decode($json,true);
+        //Si está autorizado el usuario por token
+        //$checkToken&&
+        if( !empty($params_array)){
+            
+            //Sacar el usuario
+            $user=$jwtAuth->checkToken($token,true);
+            //validar los datos
+            $validate = \Validator::make($params_array, [
+                'name' => 'required|alpha',
+                'surname' => 'required',
+                //unique para que no deje registrar usuarios con el mismo email
+                'email' => 'required|email|unique:users'.$user->sub,
+                'password' => 'required',
+             ]);           //se le agrega ese id para que email se unico excepto para ese user que ya tenia ese email                    
+            
+            $params_array['password']=hash('sha256',$params_array['password']);
+            //quitar los campos que no quiero actualizar
+            unset($params_array['id']);
+            unset($params_array['role']);
+            // unset($params_array['password']);
+            unset($params_array['create_at']); 
+            unset($params_array['remember_token']);        
+            //Actualizar el User en la BD
+            $user_update=User::where('id',$user->sub)->update($params_array);
+            //retornar el resultado de la actualiazción
+            $params_array['password']='******';
+            $data=array(
+                'code'=>200,
+                'status'=>'success',
+                'user'=>$user,
+                'changes'=>$params_array
+            );
+
         }
+        else{
+            $data = array(
+                'status' => 'error',
+                'code' => 401,
+                'message' => 'Datos incorrectos'
+            );
+           
+        }
+        return response()->json($data,$data['code']);
+
     }
 }

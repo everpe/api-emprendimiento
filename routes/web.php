@@ -17,4 +17,4 @@ Route::get('/prueba','PruebasController@probar');
 //-ESTAS RUTAS LUEGO LAS DEBO PASAR A LAS DE API
 Route::post('api/register','UserController@register');
 Route::post('api/login','UserController@login');
-Route::post('api/user/update','UserController@update');
+Route::put('api/user/update','UserController@update');
