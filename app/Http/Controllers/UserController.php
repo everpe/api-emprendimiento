@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use App\User;
+use Firebase\JWT\JWT;
+
 class UserController extends Controller
 {
     /**
@@ -70,5 +72,52 @@ class UserController extends Controller
             );
         }
         return response()->json($data, $data['code']);
+    }
+
+    public function login(Request $request){
+        //clase helper creada con metodo de singup.
+        $jwtAuth=new \JwtAuth();
+        //Recibir los datos del user por POST del Json
+        $json=$request->input('json',null);
+        $params=json_decode($json);
+        $params_array=json_decode($json,true);
+        //Validar esos datos
+        $validate = \Validator::make($params_array, [
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+        //Si hay error en los datos
+        if ($validate->fails()) {
+            $singup = array(
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No se ha podido Loguear el usuario',
+                'errors' => $validate->errors()
+            );
+            // return  response()->json($singup);
+        }
+        else{
+
+            $pwd=hash('sha256',$params->password);
+            //si no hay parametro get token,es null por defecto y envía el token
+            $singup=$jwtAuth->singup($params->email,$pwd);
+            //Si si getToken entonces devuelve los datos del user codificados
+            if(!empty($params->getToken)){
+                $singup=$jwtAuth->singup($params->email,$pwd,true);        
+            }
+        }
+        return response()->json($singup,200);    
+    
+    }
+
+    public function update(Request $request){
+        $token=$request->header('Authorization');//Authorization desde el frontend con el token
+        $jwtAuth= new \JwtAuth();
+        $checkToken=$jwtAuth->checkToken($token);//verifica el token en Jwt
+        if($checkToken){
+            return "Token Veridico";
+        }else{
+            return "token Malo, No puedes";
+        }
     }
 }
