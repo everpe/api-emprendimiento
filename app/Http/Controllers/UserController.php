@@ -15,7 +15,7 @@ class UserController extends Controller
      */
     public function __construct(){
         $this->middleware('api.auth',
-        ['except'=>['login','singup']]);
+        ['except'=>['login','register']]);
     }
 
     /**
@@ -118,12 +118,13 @@ class UserController extends Controller
     
     }
 
+    /**
+     * Actualiza datos de un usuario previamente loguado por middleware
+     */
     public function update(Request $request){
         $token=$request->header('Authorization');//Authorization desde el frontend con el token
         $jwtAuth= new \JwtAuth();
-        // $checkToken=$jwtAuth->checkToken($token);//verifica el token en Jwt
       
-        
         //recoger los datos a actualizar del user por POST
         $json=$request->input('json',null);
         $params_array=json_decode($json,true);
@@ -131,7 +132,7 @@ class UserController extends Controller
         //$checkToken&&
         if( !empty($params_array)){
             
-            //Sacar el usuario
+            //Sacar el obejct usuario 
             $user=$jwtAuth->checkToken($token,true);
             //validar los datos
             $validate = \Validator::make($params_array, [

@@ -16,8 +16,7 @@ class User extends Authenticatable
      * Relación de muchos a muchos.
      */
     public function tests() {
-        return $this->belongsToMany('App\Test')
-            ->withPivot('interpretation')
+        return $this->hasMany('App\Test')
             ->withTimestamps();
     }
     /**

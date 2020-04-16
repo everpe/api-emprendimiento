@@ -17,8 +17,15 @@ class CreateTestsTable extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->string('type');
-            $table->boolean('state');
+            $table->boolean('state')->default(0);
+            $table->string('interpretation')->default('Not Interpreted Yet');
+            //la foranea del user
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
+            $table->foreign('user_id')
+            ->references('id')->on('users')
+            ->onDelete('cascade')
+            ->onUpdate('cascade'); 
         });
     }
 

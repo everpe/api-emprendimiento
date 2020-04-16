@@ -7,6 +7,9 @@ use App\Activity;
 use App\Section;
 use App\Test;
 use App\User;
+/**
+ * Controlador para hacer varias pruebitas.
+ */
 class PruebasController extends Controller
 {
    

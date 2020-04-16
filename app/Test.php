@@ -7,13 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Test extends Model
 {
     /*
-     * Retorna todos los usuarios que realizaron cierta prueba.
+     * Retorna el usuario pripietario de una prueba.
      * Relación de muchos a muchos.
      */
-    public function users() {
-        return $this->belongsToMany('App\User')    
-        ->withPivot('interpretation')
-        ->withTimestamps();
+    public function user() {
+        return $this->belongsTo('App\User');//->withTimestamps();
     }
 
     /**
