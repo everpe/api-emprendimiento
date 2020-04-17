@@ -7,6 +7,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use App\User;
 use Firebase\JWT\JWT;
+//use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -87,10 +88,12 @@ class UserController extends Controller
         $jwtAuth=new \JwtAuth();
         //Recibir los datos del user por POST del Json
         $json=$request->input('json',null);
-        $params=json_decode($json);
-        $params_array=json_decode($json,true);
+        //$params=json_decode($json);
+        //$params_array=json_decode($json,true);
+
+        $params = $request->all();
         //Validar esos datos
-        $validate = \Validator::make($params_array, [
+        $validate = \Validator::make($params, [
             'email' => 'required|email',
             'password' => 'required'
         ]);
@@ -106,15 +109,21 @@ class UserController extends Controller
         }
         else{
 
-            $pwd=hash('sha256',$params->password);
+            $info = [];
+
+            $pwd=hash('sha256',$params['password']);
             //si no hay parametro get token,es null por defecto y envía el token
-            $singup=$jwtAuth->singup($params->email,$pwd);
+            $singup=$jwtAuth->singup($params['email'],$pwd);
             //Si si getToken entonces devuelve los datos del user codificados
-            if(!empty($params->getToken)){
-                $singup=$jwtAuth->singup($params->email,$pwd,true);        
-            }
+            //if(!empty($params->getToken)){
+                $user=$jwtAuth->singup($request->email,$pwd,true);                       
+            //}
+            $info['acces_token'] = $singup;
+            //$user = Auth::user();
+            $info['user'] = $user;
         }
-        return response()->json($singup,200);    
+
+        return response()->json($info,200);    
     
     }
 
