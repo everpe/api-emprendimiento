@@ -28,8 +28,9 @@ class UserController extends Controller
        //Obtener los datos que envia el usuario por POST del request
        $json=$request->input('json',null);
     
-       $params= json_decode($json);
-       $params_array= json_decode($json,true);
+       //$params= json_decode($json);
+       //$params_array= json_decode($json,true);
+       $params_array = $request->all();
        
        //Si el user si envia datos
        if(!empty($params_array))
@@ -48,7 +49,7 @@ class UserController extends Controller
                 //crea respuesta de error
                 $data = array(
                     'status' => 'error',
-                    'code' => 404,
+                    'code' => 400,
                     'message' => 'No se ha podido registrar el usuario',
                     'errors' => $validate->errors()
                 );
@@ -76,7 +77,7 @@ class UserController extends Controller
         }else{
             $data = array(
                 'status' => 'failed',
-                'code' => 404,
+                'code' => 400,
                 'message' => ' datos enviados incorrectos'
             );
         }
