@@ -56,14 +56,11 @@ class TestController extends Controller
     }
 
     public function interpretTest($id_test){
-        $test=Test::where('id',$id_test)->get();
-        	
-        // $array = array('A'=>0, 'B'=>0,'C'=>0,'D'=>0);
-        // $activities=$test->activities;
         $activities= Activity::where('test_id',$id_test)->get();
 
         if(count($activities)==3)
         {
+           
             //en cada posición guarda las secciones de cada actividad
             $sections=array();
             $cont=0;
@@ -104,6 +101,8 @@ class TestController extends Controller
                 'messagge'=>"Test Analizado Correctamente",
                 'scors'=>$scores
             ];
+            //Cambiar el estado del Test a 1
+            $test=Test::where('id',$id_test)->update(['state' => 1]);;
         }else{      
             $data=[
                 'code'=>404,
@@ -111,9 +110,7 @@ class TestController extends Controller
                 'messagge'=>"Esta Prueba No ha completado las actividades Requeridas"
             ];
         }
-        
         return  response()->json($data,$data['code']);
-
     }
 
     /**

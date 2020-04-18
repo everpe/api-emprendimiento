@@ -20,13 +20,12 @@ class ActivityController extends Controller
      *  y agrega esa actividad a un test ya creado. 
      */
     public function addActivityHerrmann($id_herrmann,Request $request){
-        $json=$request->input('json',null);
-        $params= json_decode($json);
-        $json=$request->input('json',null);
-        $params_array=json_decode($json,true);
+        // $json=$request->input('json',null);
+        // $params= json_decode($json);
+        // $params_array=json_decode($json,true);
+        $params_array=$request->all();
 
-
-        //validar que ese test no tenga ya las actividades agregadas
+        //validar que ese test no tenga ya todas las actividades agregadas
         $test= Test::find($id_herrmann);
         if(count($test->activities)<3)
         {
@@ -42,10 +41,10 @@ class ActivityController extends Controller
                     $activity->name="Seleccionar Palabras";
                     $activity->test_id=$id_herrmann;
                     $activity->save();
-                    $activity->sections()->attach( 1,['score'=>$params->seccionA]);
-                    $activity->sections()->attach( 2,['score'=>$params->seccionB]);
-                    $activity->sections()->attach( 3,['score'=>$params->seccionC]);
-                    $activity->sections()->attach( 4,['score'=>$params->seccionD]);
+                    $activity->sections()->attach( 1,['score'=>$params_array['seccionA']]);//$params->seccionA]);
+                    $activity->sections()->attach( 2,['score'=>$params_array['seccionB']]);//$params->seccionB]);
+                    $activity->sections()->attach( 3,['score'=>$params_array['seccionC']]);//$params->seccionC]);
+                    $activity->sections()->attach( 4,['score'=>$params_array['seccionD']]);//$params->seccionD]);
                     $data=[
                         'code'=>200,
                         'status'=>'success',

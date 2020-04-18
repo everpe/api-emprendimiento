@@ -70,7 +70,6 @@ class JwtAuth{
  */
     public function checkToken($jwt, $getIdentity=false){
         $auth=false; 
-
         try{
             //quita las collias que pueeda traer extra el token
             $jwt=str_replace('"','',$jwt);

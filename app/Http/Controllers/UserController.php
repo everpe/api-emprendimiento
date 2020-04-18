@@ -26,8 +26,7 @@ class UserController extends Controller
     public function register(Request $request)
     {       
        //Obtener los datos que envia el usuario por POST del request
-       $json=$request->input('json',null);
-    
+        // $json=$request->input('json',null);
        //$params= json_decode($json);
        //$params_array= json_decode($json,true);
        $params_array = $request->all();
@@ -88,10 +87,7 @@ class UserController extends Controller
         //clase helper creada con metodo de singup.
         $jwtAuth=new \JwtAuth();
         //Recibir los datos del user por POST del Json
-        $json=$request->input('json',null);
-        //$params=json_decode($json);
-        //$params_array=json_decode($json,true);
-
+        // $json=$request->input('json',null);
         $params = $request->all();
         //Validar esos datos
         $validate = \Validator::make($params, [
@@ -102,29 +98,24 @@ class UserController extends Controller
         if ($validate->fails()) {
             $singup = array(
                 'status' => 'error',
-                'code' => 404,
+                'code' => 401,
                 'message' => 'No se ha podido Loguear el usuario',
                 'errors' => $validate->errors()
             );
-            // return  response()->json($singup);
+            return  response()->json($singup,401);
         }
         else{
-
-            $info = [];
-
             $pwd=hash('sha256',$params['password']);
             //si no hay parametro get token,es null por defecto y envía el token
             $singup=$jwtAuth->singup($params['email'],$pwd);
             //Si si getToken entonces devuelve los datos del user codificados
             //if(!empty($params->getToken)){
-                $user=$jwtAuth->singup($request->email,$pwd,true);                       
+            $user=$jwtAuth->singup($request->email,$pwd,true);                       
             //}
-            $info['acces_token'] = $singup;
-            //$user = Auth::user();
-            $info['user'] = $user;
+            return response()->json($singup,200); 
         }
 
-        return response()->json($info,200);    
+          
     
     }
 
@@ -132,14 +123,13 @@ class UserController extends Controller
      * Actualiza datos de un usuario previamente loguado por middleware
      */
     public function update(Request $request){
-        $token=$request->header('Authorization');//Authorization desde el frontend con el token
+        //Authorization desde el frontend con el token,Obtiene el user logueado
+        $token=$request->header('Authorization');
         $jwtAuth= new \JwtAuth();
-      
         //recoger los datos a actualizar del user por POST
-        $json=$request->input('json',null);
-        $params_array=json_decode($json,true);
+        // $json=$request->input('json',null);
+        $params_array= $request->all();
         //Si está autorizado el usuario por token
-        //$checkToken&&
         if( !empty($params_array)){
             
             //Sacar el obejct usuario 
@@ -170,7 +160,6 @@ class UserController extends Controller
                 'user'=>$user,
                 'changes'=>$params_array
             );
-
         }
         else{
             $data = array(
@@ -182,5 +171,21 @@ class UserController extends Controller
         }
         return response()->json($data,$data['code']);
 
+    }
+
+    /**
+     * Obtiene el user que está logueado.
+     */
+    public function getUser(Request $request){
+        //Obtiene el usuario actualente logueado.
+        $token=$request->header('Authorization');
+        $jwtAuth= new \JwtAuth();
+        $user=$jwtAuth->checkToken($token,true);
+        $data=array(
+            'code'=>200,
+            'status'=>'success',
+            'user'=>$user
+        );
+        return response()->json($data,$data['code']);
     }
 }
