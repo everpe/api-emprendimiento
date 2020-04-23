@@ -12,10 +12,10 @@ use Firebase\JWT\JWT;
 
 class TestController extends Controller
 {
-    public function __construct(){
-        $this->middleware('api.auth',
-        ['except'=>['index']]);
-    }
+    // public function __construct(){
+    //     $this->middleware('api.auth',
+    //     ['except'=>['index']]);
+    // }
 
     /**
      *Todas las pruebas creadasy le adjunto el user creador de cada test.
@@ -50,7 +50,8 @@ class TestController extends Controller
         $data=[
             'code'=>200,
             'status'=>'success',
-            'messagge'=>'Has creado Un test Herrmann para resolver:Exitos '
+            'messagge'=>'Has creado Un test Herrmann para resolver:Exitos',
+            'id_test_creado'=>$test->id
         ];
         return response()->json($data,$data['code']);  
     }

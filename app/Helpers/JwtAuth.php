@@ -70,9 +70,10 @@ class JwtAuth{
  */
     public function checkToken($jwt, $getIdentity=false){
         $auth=false; 
+        $decoded='';
         try{
             //quita las collias que pueeda traer extra el token
-            // $jwt=str_replace('"','',$jwt);
+            $jwt=str_replace('Bearer ','',$jwt);
             //Decodifca el token recibido del cliente, con la llave y el HS256
             $decoded=JWT::decode($jwt,$this->key,['HS256']);     
         }catch(\UnexpectedValueException $e){
