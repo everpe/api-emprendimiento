@@ -31,20 +31,20 @@ class ActivityController extends Controller
         {
             if(!empty($params_array)){
                 $validate=\Validator::make($params_array,[
-                    'seccionA'=>'required|numeric|min:0|max:9',
-                    'seccionB'=>'required|numeric|min:0|max:9',
-                    'seccionC'=>'required|numeric|min:0|max:9',
-                    'seccionD'=>'required|numeric|min:0|max:9'
+                    'sectionA'=>'required|numeric|min:0|max:9',
+                    'sectionB'=>'required|numeric|min:0|max:9',
+                    'sectionC'=>'required|numeric|min:0|max:9',
+                    'sectionD'=>'required|numeric|min:0|max:9'
                 ]);
                 if(!$validate->fails()){
                     $activity= new Activity();
                     $activity->name="Seleccionar Palabras";
                     $activity->test_id=$id_herrmann;
                     $activity->save();
-                    $activity->sections()->attach( 1,['score'=>$params_array['seccionA']]);//$params->seccionA]);
-                    $activity->sections()->attach( 2,['score'=>$params_array['seccionB']]);//$params->seccionB]);
-                    $activity->sections()->attach( 3,['score'=>$params_array['seccionC']]);//$params->seccionC]);
-                    $activity->sections()->attach( 4,['score'=>$params_array['seccionD']]);//$params->seccionD]);
+                    $activity->sections()->attach( 1,['score'=>$params_array['sectionA']]);//$params->sectionA]);
+                    $activity->sections()->attach( 2,['score'=>$params_array['sectionB']]);//$params->sectionB]);
+                    $activity->sections()->attach( 3,['score'=>$params_array['sectionC']]);//$params->sectionC]);
+                    $activity->sections()->attach( 4,['score'=>$params_array['sectionD']]);//$params->sectionD]);
                     $data=[
                         'code'=>200,
                         'status'=>'success',
