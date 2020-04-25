@@ -17,7 +17,7 @@ class JwtAuth{
  * Retorna el token del usuario identificado o si se le envia un,
  * segundo parametro true, devuelve los datos de ese usuario logueado. 
  */
-    public function singup($email,$password,$getToken=null){
+    public function singup($email,$password){
         //Busca un usuario con ese email y contraseña
         $user=User::where([
             'email'=>$email,
@@ -26,7 +26,6 @@ class JwtAuth{
     
         //variable de autenticación
         $singup=false;
-  
         //Validar si son correctas su email y password
         if(is_object($user)){
             $singup=true;  
@@ -41,17 +40,9 @@ class JwtAuth{
                 'iat'=>    time(),//creacion del token
                 'exp'=>    time()+(60*60)//tiempo de expiracion del token
             );
-            
             //HS256 es el algoritmo de cifrado,crea el token
             $jwt=JWT::encode($token,$this->key,'HS256');
-            //Saca los datos del user del token
-            $decoded=JWT::decode($jwt,$this->key,['HS256']);
-            
-            if(is_null($getToken)){
-                $data=$jwt;        
-            }else{
-                $data=$decoded;
-            }
+            $data=$jwt;        
         }else{
             $data=array(
                 'status'=>   'error',
@@ -70,9 +61,8 @@ class JwtAuth{
  */
     public function checkToken($jwt, $getIdentity=false){
         $auth=false; 
-        $decoded='';
+        // $decoded='';
         try{
-            //quita las collias que pueeda traer extra el token
             $jwt=str_replace('Bearer ','',$jwt);
             //Decodifca el token recibido del cliente, con la llave y el HS256
             $decoded=JWT::decode($jwt,$this->key,['HS256']);     

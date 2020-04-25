@@ -18,7 +18,7 @@ Route::get('/me','UserController@getUser');
 //Rutas de Test
 Route::resource('/test','TestController');
 Route::post('/create/herrmann','TestController@createHerrmann');
-Route::post('/interpret/test/{id_testk}','TestController@interpretTest');
+Route::post('/interpret/herrmann/{id_testk}','TestController@interpretHerrmann');
 
 Route::post('/add/activity/{id_test}',
             'ActivityController@addActivityHerrmann');

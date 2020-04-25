@@ -26,9 +26,6 @@ class UserController extends Controller
     public function register(Request $request)
     {       
        //Obtener los datos que envia el usuario por POST del request
-        // $json=$request->input('json',null);
-       //$params= json_decode($json);
-       //$params_array= json_decode($json,true);
        $params_array = $request->all();
        
        //Si el user si envia datos
@@ -55,8 +52,7 @@ class UserController extends Controller
             } else {//Si no hay fallos de validación
                 //Cifrando la contraseña
                 $pwd=hash('sha256',$params_array['password']);
-                // $pwd=hash('sha256',$params->password);
-        
+    
                 $user=new User();
                 $user->name=$params_array['name'];
                 $user->surname=$params_array['surname'];
@@ -68,8 +64,6 @@ class UserController extends Controller
                     'status' => 'succes',
                     'code' => 200,
                     'message' => ' usuario Creado correctamente',
-                    // 'sinCifrar'=>$params->password,
-                    // 'cifrada'=>$user->password,
                     'user'=> $user
                 ); 
             } 
@@ -86,8 +80,6 @@ class UserController extends Controller
     public function login(Request $request){
         //clase helper creada con metodo de singup.
         $jwtAuth=new \JwtAuth();
-        //Recibir los datos del user por POST del Json
-        // $json=$request->input('json',null);
         $params = $request->all();
         //Validar esos datos
         $validate = \Validator::make($params, [
@@ -106,17 +98,10 @@ class UserController extends Controller
         }
         else{
             $pwd=hash('sha256',$params['password']);
-            //si no hay parametro get token,es null por defecto y envía el token
+            //Obtiene el token a partir de esos datos
             $singup=$jwtAuth->singup($params['email'],$pwd);
-            //Si si getToken entonces devuelve los datos del user codificados
-            //if(!empty($params->getToken)){
-            $user=$jwtAuth->singup($request->email,$pwd,true);                       
-            //}
             return response()->json($singup,200); 
-        }
-
-          
-    
+        } 
     }
 
     /**
@@ -170,7 +155,6 @@ class UserController extends Controller
            
         }
         return response()->json($data,$data['code']);
-
     }
 
     /**

@@ -24,7 +24,7 @@ class ApiAuthMiddleware
             $data = array(
                 'status' => 'error',
                 'code' => 401,
-                'message' => 'El Usuario No se Ha logueado'
+                'message' => 'El token enviado no corresponde a un user Autorizado'
             );
         }
         return response()->json($data,$data['code']);   

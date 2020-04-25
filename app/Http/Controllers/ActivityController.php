@@ -15,14 +15,14 @@ use App\Helpers\JwtAuth;
 class ActivityController extends Controller
 {
 
+    public function __construct(){
+        $this->middleware('api.auth');
+    }
     /**
      * Crea una actividad con el puntaje de cada sección que viene en el request,
      *  y agrega esa actividad a un test ya creado. 
      */
     public function addActivityHerrmann($id_herrmann,Request $request){
-        // $json=$request->input('json',null);
-        // $params= json_decode($json);
-        // $params_array=json_decode($json,true);
         $params_array=$request->all();
 
         //validar que ese test no tenga ya todas las actividades agregadas
@@ -54,7 +54,7 @@ class ActivityController extends Controller
                         'code'=>400,
                         'status'=>'error',
                         'messagge'=>"Score de Actividades Incorrectos",
-                        'errors'=>$validate->fails()];
+                        'errors'=>$validate->errors()];
                 }
             }else{
                 $data=[
