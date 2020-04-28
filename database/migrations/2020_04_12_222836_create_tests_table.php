@@ -18,7 +18,7 @@ class CreateTestsTable extends Migration
             $table->string('name');
             $table->string('type');
             $table->boolean('state')->default(0);
-            $table->string('interpretation')->default('Not Interpreted Yet');
+            $table->text('interpretation');
             //la foranea del user
             $table->unsignedBigInteger('user_id');
             $table->timestamps();

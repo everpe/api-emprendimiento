@@ -46,6 +46,7 @@ class TestController extends Controller
         $test->type="AUTOCONOCIMIENTO";
         $test->state=0;
         $test->user_id=$user->sub;
+        $test->interpretation='Not Interpreted Yet';
         $test->save();
         $data=[
             'code'=>200,
@@ -67,8 +68,8 @@ class TestController extends Controller
         {
             //Actualizar el estado e interpretaciín del Test.
             $test=Test::where('id',$id_test)->update(['state' => 1]);
-            $interpretation=$this->setMessage($scores);
-            $test=Test::where('id',$id_test)->update(['interpretation' => $interpretation]);
+           $interpretation=$this->setMessage($scores);
+           $test=Test::where('id',$id_test)->update(['interpretation' => $interpretation]);
             $data=[
                 'code'=>200,
                 'status'=>'succes',
