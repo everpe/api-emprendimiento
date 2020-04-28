@@ -14,32 +14,50 @@ class TestController extends Controller
 {
     public function __construct(){
         $this->middleware('api.auth',
-        ['except'=>['index','getScores','setMessage']]);
+        ['except'=>['getScores','setMessage']]);
     }
 
     /**
-     *Todas las pruebas creadasy le adjunto el user creador de cada test.
+     *Todas las pruebas creadas y le adjunto el user creador de cada test.
+     *Metodo que solo puede acceder el Administrador
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tests=Test::All()->load('user');
-        return response()->json([
-            'code'=>200,
-            'status'=>'success',
-            'tests'=>$tests
-        ],200);
+        $user=$this->getUserLoggedIn($request);
+        if($user->role=="ROLE_ADMIN"){
+            $tests=Test::All()->load('user');
+            return response()->json([
+                'code'=>200,
+                'status'=>'success',
+                'tests'=>$tests
+            ],200);
+        }else{
+            return response()->json([
+                'code'=>401,
+                'status'=>'error',
+                'message'=>'Solo El Admin tiene permisos'
+            ],401);
+        }
+       
     }
 
+
+    /**
+     * Obtiene un El usuario logueado necesario para algunos metodos que usan al user.
+     */
+    public function getUserLoggedIn(Request $request){
+        $token=$request->header('Authorization');
+        $jwtAuth= new \JwtAuth();
+        $user=$jwtAuth->checkToken($token,true);
+        return $user;
+    }
     /**
      * Obtiene el user logueado, Crea un Test de Herrmann en blanco,
      * y se lo asigna a ese user logueado.
      */
     public function createHerrmann(Request $request){
-
-        $token=$request->header('Authorization');
-        $jwtAuth= new \JwtAuth();
-        $user=$jwtAuth->checkToken($token,true);
+        $user=$this->getUserLoggedIn($request);
 
         $test= new Test();
         $test->name="Test De Herrmann";
@@ -251,6 +269,32 @@ class TestController extends Controller
         return $message;
     }
    
+     /**
+     * Obtener los Test  que pertenecen al usuario logueado.
+     * @param el id del usuario.
+     */
+    public function getTestsByUser(Request $request){
+        //El usuario que está logueado
+        $user=$this->getUserLoggedIn($request);
+        $tests=Test::where('user_id',$user->sub)->get();
+        if(count($tests)>0){
+            return response()->json([
+                'code'=>200,
+                'status'=>'Success',
+                'nameUser'=>$user->name,
+                'Tests'=>$tests
+            ],200);
+        }else{
+            return response()->json([
+                'code'=>200,
+                'message'=>'El User No tiene Tests Creados',
+                'nameUser'=>$user->name,
+                'Tests'=>$tests
+            ],200);
+        }
+        
+    }
+
 
     /**
      * Store a newly created resource in storage.

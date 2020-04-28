@@ -18,7 +18,10 @@ Route::get('/me','UserController@getUser');
 //Rutas de Test
 Route::resource('/test','TestController');
 Route::post('/create/herrmann','TestController@createHerrmann');
-Route::post('/interpret/herrmann/{id_testk}','TestController@interpretHerrmann');
+Route::post('/interpret/herrmann/{id_test}','TestController@interpretHerrmann');
+//Saca todos los tests por user Logueado
+Route::get('/tests/by/user','TestController@getTestsByUser');
 
+//RUTAS ACTIVITY
 Route::post('/add/activity/{id_test}',
             'ActivityController@addActivityHerrmann');
