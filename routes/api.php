@@ -15,6 +15,8 @@ Route::post('/register','UserController@register');
 Route::post('/login','UserController@login');
 Route::put('/user/update','UserController@update');
 Route::get('/me','UserController@getUser');
+Route::post('/user/upload/avatar','UserController@uploadImage');
+Route::get('/user/download/avatar/{filename}','UserController@getImage');
 //Rutas de Test
 Route::resource('/test','TestController');
 Route::post('/create/herrmann','TestController@createHerrmann');

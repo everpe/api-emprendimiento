@@ -7,8 +7,13 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use App\User;
 use Firebase\JWT\JWT;
-//use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Http\File;
+
+//use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 class UserController extends Controller
 {
     /**
@@ -104,55 +109,109 @@ class UserController extends Controller
         } 
     }
 
+
+
+
+    /**
+     * Subir LA imagen a disco,para uego poder accederla con la ruta que está en la bd.
+     */
+    public function uploadImage(Request $request){
+        //la libreria fileuploader recoge la imagen es en ese campo
+        $image=$request->file('file0');
+        
+        //Validar que lo que se suba sea imagen
+        $validate=\Validator::make($request->all(),[
+            'file0'=>'required|image|mimes:jpg,jpeg,png,gif'
+        ]);
+        //Guardar la imagen  
+        if(!$image||$validate->fails()){
+            $data = array(
+                'status' => 'error',
+                'code' => '400',
+                'message' => 'No hay imagen o Formato Incorrecto',
+                'imagen'=>$image
+            );
+        }else{
+            $image_name=time().$image->getClientOriginalName();
+            // se crea dicha carpeta /storage/app/avatars
+            Storage::disk('avatars')->put($image_name,\File::get($image));   
+                $data = array(
+                    'status' => 'succes',
+                    'code' => '200',
+                    'image' => $image_name
+                );
+        }
+        return response()->json($data,$data['code']);
+    }
+
+       /**
+     * Funcion para obtener la imagen de un Usuario del disco
+     */
+    public function getImage($filename){
+        $isset=Storage::disk('avatars')->exists($filename);
+        // $exists = Storage::disk('avatars')->exists($filename);
+        if(!empty($isset))
+        {
+            $file=Storage::disk('avatars')->get($filename);
+            return new Response($file,200);
+        }else{
+            $data = array(
+                'status' => 'error',
+                'code' => '404',
+                'message' => 'imagen no existe en disco'
+            );  
+            return response()->json($data,$data['code']);  
+        }   
+    }
+
     /**
      * Actualiza datos de un usuario previamente loguado por middleware
      */
     public function update(Request $request){
-        //Authorization desde el frontend con el token,Obtiene el user logueado
-        $token=$request->header('Authorization');
-        $jwtAuth= new \JwtAuth();
-        //recoger los datos a actualizar del user por POST
-        // $json=$request->input('json',null);
-        $params_array= $request->all();
+        $params_array=$request->all();
         //Si está autorizado el usuario por token
-        if( !empty($params_array)){
-            
-            //Sacar el obejct usuario 
-            $user=$jwtAuth->checkToken($token,true);
-            //validar los datos
+        if( !empty($params_array)){            
+            $user=$this->getUser($request);
+
             $validate = \Validator::make($params_array, [
                 'name' => 'required|alpha',
                 'surname' => 'required',
                 //unique para que no deje registrar usuarios con el mismo email
-                'email' => 'required|email|unique:users'.$user->sub,
-                'password' => 'required',
-             ]);           //se le agrega ese id para que email se unico excepto para ese user que ya tenia ese email                    
-            
-            $params_array['password']=hash('sha256',$params_array['password']);
-            //quitar los campos que no quiero actualizar
-            unset($params_array['id']);
-            unset($params_array['role']);
-            // unset($params_array['password']);
-            unset($params_array['create_at']); 
-            unset($params_array['remember_token']);        
-            //Actualizar el User en la BD
-            $user_update=User::where('id',$user->sub)->update($params_array);
-            //retornar el resultado de la actualiazción
-            $params_array['password']='******';
-            $data=array(
-                'code'=>200,
-                'status'=>'success',
-                'user'=>$user,
-                'changes'=>$params_array
-            );
+                'email'=>'required',Rule::unique('users')->ignore($user->sub),
+                'password' => 'required'
+            ]);   
+            if(!$validate->fails()){
+                $params_array['password']=hash('sha256',$params_array['password']);
+                //quitar los campos que no quiero actualizar
+                unset($params_array['id']);
+                unset($params_array['role']);
+                unset($params_array['create_at']); 
+                unset($params_array['remember_token']);        
+                //Actualizar el User en la BD
+                $user_update=User::where('id',$user->sub)->update($params_array);
+                //retornar el resultado de la actualiazción
+                $params_array['password']='******';
+                $data=array(
+                    'code'=>200,
+                    'status'=>'success',
+                    'user'=>$user,
+                    'changes'=>$params_array
+                );
+            } else{
+                $data=array(
+                    'code'=>400,
+                    'status'=>'error',
+                    'errors'=>$validate->errors()
+                );
+            } 
         }
         else{
             $data = array(
                 'status' => 'error',
-                'code' => 401,
-                'message' => 'Datos incorrectos'
-            );
-           
+                'code' => 400,
+                'message' => 'Datos Vacios',
+                'errors'=>$validate->errors()
+            );  
         }
         return response()->json($data,$data['code']);
     }
@@ -165,11 +224,6 @@ class UserController extends Controller
         $token=$request->header('Authorization');
         $jwtAuth= new \JwtAuth();
         $user=$jwtAuth->checkToken($token,true);
-        $data=array(
-            'code'=>200,
-            'status'=>'success',
-            'user'=>$user
-        );
-        return response()->json($data,$data['code']);
+        return $user;
     }
 }
