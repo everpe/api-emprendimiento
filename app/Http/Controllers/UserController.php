@@ -94,8 +94,7 @@ class UserController extends Controller
         //Si hay error en los datos
         if ($validate->fails()) {
             $singup = array(
-                'status' => 'error',
-                'code' => 401,
+                'status' => 'error','code' => 401,
                 'message' => 'No se ha podido Loguear el usuario',
                 'errors' => $validate->errors()
             );
@@ -103,12 +102,10 @@ class UserController extends Controller
         }
         else{
             $pwd=hash('sha256',$params['password']);
-            //Obtiene el token a partir de esos datos
-            $singup=$jwtAuth->singup($params['email'],$pwd);
-            return response()->json($singup,200); 
+                $singup=$jwtAuth->singup($params['email'],$pwd);
+                return response()->json($singup,200); 
         } 
     }
-
 
 
 
@@ -171,7 +168,7 @@ class UserController extends Controller
         $params_array=$request->all();
         //Si está autorizado el usuario por token
         if( !empty($params_array)){            
-            $user=$this->getUser($request);
+            $user=$this->getUserByToken($request);
 
             $validate = \Validator::make($params_array, [
                 'name' => 'required|alpha',
@@ -217,13 +214,27 @@ class UserController extends Controller
     }
 
     /**
-     * Obtiene el user que está logueado.
+     * Obtiene el user que está logueado mediante su token.
      */
-    public function getUser(Request $request){
+    public function getUserByToken(Request $request){
         //Obtiene el usuario actualente logueado.
         $token=$request->header('Authorization');
         $jwtAuth= new \JwtAuth();
         $user=$jwtAuth->checkToken($token,true);
         return $user;
+    }
+
+    /**
+     *Obtiene un usuario de la bd mediante su email y pwd.
+     */
+    public function getUserByCredentials($email,$pwd){
+        $user=User::where([
+            ['email', '=', $email],
+            ['password', '=', $pwd],
+        ])->get()->first();
+        if(!empty($user)&& is_object($user)&&$user!=null){
+            return $user;
+        }
+        return null;
     }
 }

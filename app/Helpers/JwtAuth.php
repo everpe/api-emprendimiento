@@ -28,22 +28,26 @@ class JwtAuth{
         $singup=false;
         //Validar si son correctas su email y password
         if(is_object($user)){
-            $singup=true;  
-        }
-        //Crear el token con los datos del usuario identificado
-        if($singup){
-            $token=array(
-                'sub'=>   $user->id,
-                'email'=> $user->email,
-                'name'=>  $user->name,
-                'surname'=> $user->surname,
-                'role'=>    $user->role,
-                'iat'=>    time(),//creacion del token
-                'exp'=>    time()+(60*60)//tiempo de expiracion del token
-            );
-            //HS256 es el algoritmo de cifrado,crea el token
-            $jwt=JWT::encode($token,$this->key,'HS256');
-            $data=$jwt;        
+
+            if($user->state==1){
+                $token=array(
+                    'sub'=>   $user->id,
+                    'email'=> $user->email,
+                    'name'=>  $user->name,
+                    'surname'=> $user->surname,
+                    'role'=>    $user->role,
+                    'iat'=>    time(),//creacion del token
+                    'exp'=>    time()+(60*60)//tiempo de expiracion del token
+                );
+                //HS256 es el algoritmo de cifrado,crea el token
+                $jwt=JWT::encode($token,$this->key,'HS256');
+                $data=$jwt;
+            }else{
+                $data=array(
+                    'status'=>   'error',
+                    'message'=> 'Usuario Inactivo'
+                ); 
+            }
         }else{
             $data=array(
                 'status'=>   'error',
