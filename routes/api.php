@@ -17,15 +17,17 @@ Route::put('/user/update','UserController@update');
 Route::get('/me','UserController@getUser');
 Route::post('/user/upload/avatar','UserController@uploadImage');
 Route::get('/user/download/avatar/{filename}','UserController@getImage');
+Route::post('/user/set/status/{id_user}','UserController@changeStatus');
 
 
 
 //Rutas de Test
-Route::resource('/test','TestController');
+Route::get('/tests','TestController@index');
 Route::post('/create/herrmann','TestController@createHerrmann');
 Route::post('/interpret/herrmann/{id_test}','TestController@interpretHerrmann');
 //Saca todos los tests por user Logueado
 Route::get('/tests/by/user','TestController@getTestsByUser');
+Route::delete('/delete/test/{id_test}','TestController@deleteTest');
 
 //RUTAS ACTIVITY
 Route::post('/add/activity/{id_test}',

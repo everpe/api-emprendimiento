@@ -14,7 +14,6 @@ class UsersTableSeeder extends Seeder
         $user = new User();
         $user->name ="admin1";
         $user->surname ="Gomez Perez";
-        // $user->role = "ROLE_ADMIN";
         $user->email = "admin@mail.com";
         $user->password  = hash('sha256','admin');
         $user->description = "";
@@ -23,7 +22,6 @@ class UsersTableSeeder extends Seeder
         $user = new User();
         $user->name ="user1";
         $user->surname ="Sanin Gil";
-        // $user->role = "ROLE_USER";
         $user->email = "user@mail.com";
         $user->password = hash('sha256','user');
         $user->description = "";

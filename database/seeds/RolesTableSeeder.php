@@ -33,11 +33,11 @@ class RolesTableSeeder extends Seeder
         //estudent
         $role2->givePermissionTo('create test');
         $role2->givePermissionTo('list my tests');
-        $role2->givePermissionTo('delete test');
+        // $role2->givePermissionTo('delete test');
         //Entrepreneur
         $role3->givePermissionTo('create test');
         $role3->givePermissionTo('list my tests');
-        $role3->givePermissionTo('delete test');
+        // $role3->givePermissionTo('delete test');
 
         
 

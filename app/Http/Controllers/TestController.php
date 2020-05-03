@@ -29,7 +29,6 @@ class TestController extends Controller
     public function index(Request $request)
     {
         $tests=Test::all();
-    
         $sub=$this->getUserLoggedIn($request)->sub;
         $user=$this->getUser($sub);
         // hasRole('administrator')
@@ -47,8 +46,6 @@ class TestController extends Controller
                 'message'=>'Solo El Admin tiene permisos'
             ],401);
         }
-     
-       
     }
 
 
@@ -62,7 +59,7 @@ class TestController extends Controller
         return $user;
     }
     public function getUser($id_user){
-        $id_user=(int)$id_user;
+        // $id_user=$id_user;
         $user=User::find($id_user);
         if(is_object($user)){
             return $user;
@@ -82,12 +79,18 @@ class TestController extends Controller
         $test->state=0;
         $test->user_id=$user->sub;
         $test->interpretation='Not Interpreted Yet';
+        //Obtengo cantidad de test del user logueado
+        $tests=$this->getLengthTestsUser($request);
+        if($tests>=3){
+           $this->deleteOldestTest($user->sub);
+        }
         $test->save();
         $data=[
             'code'=>200,
             'status'=>'success',
             'messagge'=>'Has creado Un test Herrmann para resolver:Exitos',
-            'id_test_creado'=>$test->id
+            'id_test_creado'=>$test->id,
+            'length_test_existing'=>$this->getLengthTestsUser($request)
         ];
         return response()->json($data,$data['code']);  
     }
@@ -287,12 +290,15 @@ class TestController extends Controller
     }
    
      /**
-     * Obtener los Test  que pertenecen al usuario logueado.
+     * Obtener los Test  que pertenecen al usuario logueado
+     * Todos los users pueden listar sus test entonces no valido Role 
      * @param el id del usuario.
      */
     public function getTestsByUser(Request $request){
+
         //El usuario que está logueado
         $user=$this->getUserLoggedIn($request);
+
         $tests=Test::where('user_id',$user->sub)->get();
         if(count($tests)>0){
             return response()->json([
@@ -312,48 +318,58 @@ class TestController extends Controller
         
     }
 
-
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * Borrar un test en específico, solo el admin puede eliminar. 
      */
-     public function store(Request $request)
-    {   
+    public function deleteTest(Request $request,$id_test){
+
+        $sub=$this->getUserLoggedIn($request)->sub;
+        $user=$this->getUser($sub);
+        if($user->can('delete test')){
+            $test = Test::find($id_test);
+            if(!empty($test) && is_object($test)){
+                $test->delete();
+                return response()->json([
+                    'code'=>200,
+                    'status'=>'Test eliminado correctamente',
+                    'id_test_elimanted'=>$id_test
+                ],200);
+            }else{
+                return response()->json([
+                    'code'=>406,
+                    'status'=>'error',
+                    'message'=>'Test no Encontrado'
+                ],401);
+            }
+            
+        }else{
+            return response()->json([
+                'code'=>401,
+                'status'=>'error',
+                'message'=>'Solo El Admin tiene permisos para eliminar Test'
+            ],401);
+        }
+        
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Test  $test
-     * @return \Illuminate\Http\Response
+     * Borrar el test más antiguo solo si ya tiene el limite de 3 test po user 
      */
-    public function show(Test $test)
-    {
-        //
+    public function deleteOldestTest($id_user){
+        $firstTest=Test::where('user_id', '=', $id_user)->first();
+        $firstTest->delete();
+        return $firstTest;
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Test  $test
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Test $test)
-    {
-        //
-    }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Test  $test
-     * @return \Illuminate\Http\Response
+     * Obtiene la cantidad de Tests que tiene un User,
+     * Metodo para la opción de eliminar un test cuando se alcance el limite de 3.
      */
-    public function destroy(Test $test)
-    {
-        //
+    public function getLengthTestsUser(Request $request){
+        $user=$this->getUserLoggedIn($request);
+        $tests=Test::where('user_id',$user->sub)->get()->all();
+            return count($tests);
     }
+
 }
