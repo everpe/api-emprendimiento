@@ -5,10 +5,14 @@ namespace App\Http\Controllers;
 use App\Test;
 
 use App\Activity;
+use App\User;
 use Illuminate\Http\Request;
 use App\Helpers\JwtAuth;
 use Firebase\JWT\JWT;
 
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Traits\HasRoles;
 
 class TestController extends Controller
 {
@@ -24,8 +28,12 @@ class TestController extends Controller
      */
     public function index(Request $request)
     {
-        $user=$this->getUserLoggedIn($request);
-        if($user->role=="ROLE_ADMIN"){
+        $tests=Test::all();
+    
+        $sub=$this->getUserLoggedIn($request)->sub;
+        $user=$this->getUser($sub);
+        // hasRole('administrator')
+        if($user->can('list  all tests')){
             $tests=Test::All()->load('user');
             return response()->json([
                 'code'=>200,
@@ -39,18 +47,27 @@ class TestController extends Controller
                 'message'=>'Solo El Admin tiene permisos'
             ],401);
         }
+     
        
     }
 
 
     /**
-     * Obtiene un El usuario logueado necesario para algunos metodos que usan al user.
+     * Obtiene un El usuario decode logueado necesario para algunos metodos que usan al user.
      */
     public function getUserLoggedIn(Request $request){
         $token=$request->header('Authorization');
         $jwtAuth= new \JwtAuth();
         $user=$jwtAuth->checkToken($token,true);
         return $user;
+    }
+    public function getUser($id_user){
+        $id_user=(int)$id_user;
+        $user=User::find($id_user);
+        if(is_object($user)){
+            return $user;
+        }
+        return false;
     }
     /**
      * Obtiene el user logueado, Crea un Test de Herrmann en blanco,

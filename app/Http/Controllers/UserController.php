@@ -237,4 +237,25 @@ class UserController extends Controller
         }
         return null;
     }
+
+    /**
+     * Permite agregar un role a un user- implica sus permisos. 
+     */
+    public function addRole($id_user,$name_role){
+        $user=User::find($id_user);
+        if(!empty($user)&&is_object($user)){
+            $user->assignRole($name_role);
+            return response()->json([
+                'code'=>200,
+                'message'=>'se asignó el role Corrctamente',
+                'nameUser'=>$user->name,
+                'user'=>$user
+                // 'role'=>$name_role
+            ],200);
+        }
+        return response()->json([
+            'code'=>400,
+            'message'=>'No se pudó asignar el Role'
+        ],400); 
+    }
 }

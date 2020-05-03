@@ -17,6 +17,9 @@ Route::put('/user/update','UserController@update');
 Route::get('/me','UserController@getUser');
 Route::post('/user/upload/avatar','UserController@uploadImage');
 Route::get('/user/download/avatar/{filename}','UserController@getImage');
+
+
+
 //Rutas de Test
 Route::resource('/test','TestController');
 Route::post('/create/herrmann','TestController@createHerrmann');
@@ -27,3 +30,7 @@ Route::get('/tests/by/user','TestController@getTestsByUser');
 //RUTAS ACTIVITY
 Route::post('/add/activity/{id_test}',
             'ActivityController@addActivityHerrmann');
+///RUTAS ROLE
+Route::post('/add/role/{id_user}/{name_role}','RoleController@addRole');
+Route::delete('/delete/role/{id_user}/{name_role}','RoleController@deleteRole');
+Route::get('/get/roles/{id_user}','RoleController@getRolesByUser');
