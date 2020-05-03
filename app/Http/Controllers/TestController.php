@@ -119,7 +119,7 @@ class TestController extends Controller
             $data=[
                 'code'=>400,
                 'status'=>'error',
-                'messagge'=>"Esta Prueba No ha completado las actividades Suficientes"
+                'messagge'=>"Esta Prueba No ha completado las actividades Suficientes, o no existe"
             ];
         }
         return  response()->json($data,$data['code']);
@@ -265,23 +265,27 @@ class TestController extends Controller
             $message=$messages['AD_Mayor'];
         }elseif($A>$B && $A>$D && $C>$D && $C>$B){
             $message=$messages['AC_Mayor'];  
-        }elseif($A>$B && $A>$C && $A>$D){
-            $message=$messages['A_Mayor'];
         }
      
-        if($B>$D && $B>$A && $C>$A && $C>$D){
+        elseif($B>$D && $B>$A && $C>$A && $C>$D){
             $message=$messages['BC_Mayor'];
         }elseif($B>$C && $B>$A && $D>$C && $D>$A){
             $message=$messages['BD_Mayor'];
-        }elseif($B>$A && $B>$C && $B>$D){
-            $message=$messages['B_Mayor'];
         }
       
-        if($C>$A && $C>$B  && $D>$A && $D>$B ){
+        elseif($C>$A && $C>$B  && $D>$A && $D>$B ){
             $message=$messages['CD_Mayor'];
-        }elseif($C>$A && $C>$B && $C>$D){
+        }
+        elseif($A>$B && $A>$C && $A>$D){
+            $message=$messages['A_Mayor'];
+        }
+        elseif($B>$A && $B>$C && $B>$D){
+            $message=$messages['B_Mayor'];
+        }
+        elseif($C>$A && $C>$B && $C>$D){
             $message=$messages['C_Mayor'];
-        }elseif($D>$A && $D>$B && $D>$C){
+        }
+        elseif($D>$A && $D>$B && $D>$C){
             $message=$messages['D_Mayor'];
         }elseif($A==$B && $B==$C && $C==$D){
             $message=$messages['A_B_C_D'];

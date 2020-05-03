@@ -65,6 +65,7 @@ class UserController extends Controller
                 $user->password=$pwd;
                 $user->description = "Description Empty";
                 $user->save();
+                $user->assignRole('student');
                 $data = array(
                     'status' => 'succes',
                     'code' => 200,
@@ -238,6 +239,11 @@ class UserController extends Controller
         return null;
     }
 
+    /**
+     * Obtiene el usuario que stá logueado para validar sus perimisos.
+     * Obtiene el usuario a quien se le desea cambiar su estado, si estaba en 1 pasa a 0,
+     * si estab en 0 pasa a 1.
+     */
     public function changeStatus(Request $request,$id_user){
         //usuario Logueado
         $userLogged=$this->getUserByToken($request);

@@ -17,7 +17,7 @@ Route::put('/user/update','UserController@update');
 Route::get('/me','UserController@getUser');
 Route::post('/user/upload/avatar','UserController@uploadImage');
 Route::get('/user/download/avatar/{filename}','UserController@getImage');
-Route::post('/user/set/status/{id_user}','UserController@changeStatus');
+Route::post('/user/change/status/{id_user}','UserController@changeStatus');
 
 
 
