@@ -170,6 +170,7 @@ class UserController extends Controller
         //Si está autorizado el usuario por token
         if( !empty($params_array)){            
             $user=$this->getUserByToken($request);
+            // $usAux=$this->getUserByCredentials($user->email,$user->password);
             $validate = \Validator::make($params_array, [
                 'name' => 'required|alpha',
                 'surname' => 'required',
@@ -179,19 +180,18 @@ class UserController extends Controller
                     Rule::unique('users')->ignore($user->sub)
                 ],
                 // 'email'          => 'required|unique:users,email,'.$user->sub,
-                'password' => 'required'
+                // 'password' => 'required'
             ]);   
             if(!$validate->fails()){
-                $params_array['password']=hash('sha256',$params_array['password']);
                 //quitar los campos que no quiero actualizar
                 unset($params_array['id']);
                 unset($params_array['role']);
+                unset($params_array['password']);
                 unset($params_array['create_at']); 
                 unset($params_array['remember_token']);        
                 //Actualizar el User en la BD
                 $user_update=User::where('id',$user->sub)->update($params_array);
                 //retornar el resultado de la actualiazción
-                $params_array['password']='******';
                 $data=array(
                     'code'=>200,
                     'status'=>'success',
@@ -205,8 +205,7 @@ class UserController extends Controller
                     'errors'=>$validate->errors()
                 );
             } 
-        }
-        else{
+        } else{
             $data = array(
                 'status' => 'error',
                 'code' => 400,
