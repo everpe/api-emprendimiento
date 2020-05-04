@@ -216,6 +216,7 @@ class UserController extends Controller
 
     /**
      * Obtiene el user que está logueado mediante su token(sub).
+     * @return el obejct user, no responde Json
      */
     public function getUserByToken(Request $request){
         //Obtiene el usuario actualente logueado.
@@ -223,6 +224,20 @@ class UserController extends Controller
         $jwtAuth= new \JwtAuth();
         $user=$jwtAuth->checkToken($token,true);
         return $user;
+    }
+    /**
+     * Obtiene el usuario por Token pero responde con Json
+     */
+    public function getUser(Request $request){
+        //Obtiene el usuario actualente logueado.
+        $token=$request->header('Authorization');
+        $jwtAuth= new \JwtAuth();
+        $user=$jwtAuth->checkToken($token,true);
+        return response()->json([
+            'code'=>200,
+            'message'=>'success',
+            'user'=>$user
+        ],200);
     }
 
     /**
