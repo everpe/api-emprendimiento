@@ -146,11 +146,11 @@ class UserController extends Controller
      * Funcion para obtener la imagen de un Usuario del disco
      */
     public function getImage($filename){
-        $isset=Storage::disk('avatars')->exists($filename);
+        $isset=Storage::disk('common')->exists($filename);
         // $exists = Storage::disk('avatars')->exists($filename);
         if(!empty($isset))
         {
-            $file=Storage::disk('avatars')->get($filename);
+            $file=Storage::disk('common')->get($filename);
             return new Response($file,200);
         }else{
             $data = array(
