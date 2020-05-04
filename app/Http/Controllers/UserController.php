@@ -63,8 +63,9 @@ class UserController extends Controller
                 $user->surname=$params_array['surname'];
                 $user->email=$params_array['email'];
                 $user->password=$pwd;
-                $user->role='ROLE_USER';
+                $user->description = "Description Empty";
                 $user->save();
+                $user->assignRole('student');
                 $data = array(
                     'status' => 'succes',
                     'code' => 200,
@@ -214,7 +215,7 @@ class UserController extends Controller
     }
 
     /**
-     * Obtiene el user que está logueado mediante su token.
+     * Obtiene el user que está logueado mediante su token(sub).
      */
     public function getUserByToken(Request $request){
         //Obtiene el usuario actualente logueado.
@@ -237,4 +238,54 @@ class UserController extends Controller
         }
         return null;
     }
+
+    /**
+     * Obtiene el usuario que stá logueado para validar sus perimisos.
+     * Obtiene el usuario a quien se le desea cambiar su estado, si estaba en 1 pasa a 0,
+     * si estab en 0 pasa a 1.
+     */
+    public function changeStatus(Request $request,$id_user){
+        //usuario Logueado
+        $userLogged=$this->getUserByToken($request);
+        $userLogged=User::find($userLogged->sub);
+        //Usuario al que se le  va a actualizar state
+        $userEdit=User::find($id_user);
+       //Estado del usuario que queremos actualizar
+        $status=$userEdit->state;
+        if(!empty($userEdit)&&is_object($userEdit)){
+            if($userLogged->can('edit status user')){
+                if($status==0){
+                    $userEdit=User::where('id',$id_user)->update(['state' => 1]);
+                    return response()->json([
+                        'code'=>200,'status'=>'success',
+                        'message'=>'Se cambió el estado correctamente'
+                        // 'new_status'=> $userEdit->state
+                    ],200);
+                }else{
+                    $userEdit=User::where('id',$id_user)->update(['state' => 0]);
+                    return response()->json([
+                        'code'=>200,'status'=>'success',
+                        'message'=>'Se cambió el estado correctamente'
+                        // 'new_status'=> $userEdit->state
+                    ],200);
+                }
+                
+                
+            }else{
+                return response()->json([
+                    'code'=>401,'status'=>'error',
+                    'message'=>'No Autorizado para cambiar estados'
+                ],401);
+            }
+          
+        }
+        return response()->json([
+            'code'=>400,'status'=>'error',
+            'messagge'=>"El usuario que desea actualizar no existe"
+        ],400);
+    }
+
+
+
+
 }
