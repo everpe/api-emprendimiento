@@ -235,6 +235,7 @@ class UserController extends Controller
         $token=$request->header('Authorization');
         $jwtAuth= new \JwtAuth();
         $user=$jwtAuth->checkToken($token,true);
+        // $user=User::find($user->sub);
         return response()->json([
             'code'=>200,
             'message'=>'success',
@@ -302,6 +303,15 @@ class UserController extends Controller
         ],400);
     }
 
+    /**
+     * Envía el token viejo a Jwt para que se lo renueve mediante singup.
+     */
+    public function refreshToken(Request $request){
+        $token=$request->header('Authorization');
+        $jwtAuth= new \JwtAuth();
+        $jwt=$jwtAuth->refreshToken($token);
+        return response()->json($jwt,200);
+    } 
 
 
 
