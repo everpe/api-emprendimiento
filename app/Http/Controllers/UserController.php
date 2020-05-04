@@ -170,12 +170,15 @@ class UserController extends Controller
         //Si está autorizado el usuario por token
         if( !empty($params_array)){            
             $user=$this->getUserByToken($request);
-
             $validate = \Validator::make($params_array, [
                 'name' => 'required|alpha',
                 'surname' => 'required',
                 //unique para que no deje registrar usuarios con el mismo email
-                'email'=>'required',Rule::unique('users')->ignore($user->sub),
+                'email' => [
+                    'required',
+                    Rule::unique('users')->ignore($user->sub)
+                ],
+                // 'email'          => 'required|unique:users,email,'.$user->sub,
                 'password' => 'required'
             ]);   
             if(!$validate->fails()){
@@ -216,7 +219,7 @@ class UserController extends Controller
 
     /**
      * Obtiene el user que está logueado mediante su token(sub).
-     * @return el obejct user, no responde Json
+     * @return el obejct user, no responde
      */
     public function getUserByToken(Request $request){
         //Obtiene el usuario actualente logueado.

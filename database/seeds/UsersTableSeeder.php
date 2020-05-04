@@ -17,6 +17,7 @@ class UsersTableSeeder extends Seeder
         $user->email = "admin@mail.com";
         $user->password  = hash('sha256','admin');
         $user->description = "";
+        $user->image="general_user.jpeg";
         $user->save();  
        
         $user = new User();
@@ -25,6 +26,7 @@ class UsersTableSeeder extends Seeder
         $user->email = "user@mail.com";
         $user->password = hash('sha256','user');
         $user->description = "";
+        $user->image="general_user.jpeg";
         $user->save();  
         // $user->roles()->attach( $role_user);
     }

@@ -24,7 +24,7 @@ class CreateUsersTable extends Migration
 
             $table->boolean('state')->default(1);
             $table->text('description')->default(null);
-            $table->string('image')->default("vacio");
+            $table->string('image')->default("general_user.jpeg");
             $table->rememberToken();
             $table->timestamps();
         });
