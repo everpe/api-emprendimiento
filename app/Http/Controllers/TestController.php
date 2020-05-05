@@ -100,20 +100,31 @@ class TestController extends Controller
  * e interpreta esos puntajes en un mensaje 
  */
     public function interpretHerrmann($id_test){
-        $activities= Activity::where('test_id',$id_test)->get();
+        $activities= Activity::where([
+            ['test_id', '=', $id_test],['name', '=', 'Seleccionar Palabras']
+        ])->get();
         $scores=$this->getScores($activities);
+
+        $hemisphereActivity=Activity::where([
+            ['test_id', '=', $id_test],['name', '=', 'Hemisferio Cerebral']
+        ])->get()->first();
+        $hemisphere=$this->getHemisphere($hemisphereActivity);    
+
+        
         if(!empty($scores) && ($scores!=null))
         {
             //Actualizar el estado e interpretaciín del Test.
             $test=Test::where('id',$id_test)->update(['state' => 1]);
-           $interpretation=$this->setMessage($scores);
-           $test=Test::where('id',$id_test)->update(['interpretation' => $interpretation]);
+            $interpretation=$this->setMessage($scores);
+            $test=Test::where('id',$id_test)->update(['interpretation' => $interpretation]);
             $data=[
                 'code'=>200,
                 'status'=>'succes',
                 'messagge'=>"Test Analizado Correctamente",
                 'scors'=>$scores,
-                'interpretation'=>$interpretation
+                'interpretation'=>$interpretation,
+                'hemisphere'=>$hemisphere
+
             ];
         }else{      
             $data=[
@@ -126,7 +137,8 @@ class TestController extends Controller
     }
 
     /**
-     * Saca el puntaje numerico de cada sección de cada actividad y los suma.
+     * Saca el puntaje numerico de cada sección de cada actividad normal
+     * (la de hemisferio se analiza de otra manera) y los suma.
      */
     public function getScores($activities){
         if(count($activities)==3)
@@ -290,7 +302,37 @@ class TestController extends Controller
         }elseif($A==$B && $B==$C && $C==$D){
             $message=$messages['A_B_C_D'];
         }
+
+        // $this->getScoresHemisphere()
+        // $data=array([
+        //     'interpretation'=>$message,
+        //     'hemisphere'=
+        // ]);
+       
         return $message;
+    }
+
+    /**
+     * Obtiene la interpretación de la activida Hesmisphere
+     * comparando los scores de sus 2 secciones.
+     */
+    public function getHemisphere($activity_hemisphere){
+        // echo $activity_hemisphere->name;
+        if($activity_hemisphere->name=="Hemisferio Cerebral"&&count($activity_hemisphere->sections)==2){
+            $sections=$activity_hemisphere->sections;
+            
+            $a=$sections[0]->pivot->score;
+            $d=$sections[1]->pivot->score;
+            if($a > $d){
+                $messagge="No tienes una buena Capicidad de ejecución debes trabajar en ello";
+            }elseif($d > $a){
+                $messagge="Tienes buena capacidad de ejecucion";
+            }elseif($a == $d){
+                $messagge="Tienes una capacidad de ejecución Neutral";            
+            }
+            return $messagge;
+        }
+        return null;
     }
    
      /**

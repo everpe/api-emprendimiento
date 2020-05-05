@@ -113,7 +113,7 @@ class UserController extends Controller
 
 
     /**
-     * Subir LA imagen a disco,para uego poder accederla con la ruta que está en la bd.
+     * Subir LA imagen a disco,para luego poder accederla con la ruta que está en la bd.
      */
     public function uploadImage(Request $request){
         //la libreria fileuploader recoge la imagen es en ese campo
@@ -144,7 +144,7 @@ class UserController extends Controller
         return response()->json($data,$data['code']);
     }
 
-       /**
+    /**
      * Funcion para obtener la imagen de un Usuario del disco
      */
     public function getImage($filename)

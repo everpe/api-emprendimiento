@@ -34,6 +34,7 @@ Route::delete('/delete/test/{id_test}','TestController@deleteTest');
 //RUTAS ACTIVITY
 Route::post('/add/activity/{id_test}',
             'ActivityController@addActivityHerrmann');
+Route::post('/add/hemisphere/{id_test}','ActivityController@addHemisphereHerrmann');
 ///RUTAS ROLE
 Route::post('/add/role/{id_user}/{name_role}','RoleController@addRole');
 Route::delete('/delete/role/{id_user}/{name_role}','RoleController@deleteRole');
