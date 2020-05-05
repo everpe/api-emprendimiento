@@ -18,6 +18,7 @@ class UsersTableSeeder extends Seeder
         $user->password  = hash('sha256','admin');
         $user->description = "";
         $user->image="general_user.jpeg";
+        $user->assignRole('administrator');
         $user->save();  
        
         $user = new User();

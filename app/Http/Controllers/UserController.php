@@ -12,8 +12,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Http\File;
 
-//use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+
 class UserController extends Controller
 {
     /**
@@ -104,7 +105,8 @@ class UserController extends Controller
         else{
             $pwd=hash('sha256',$params['password']);
                 $singup=$jwtAuth->singup($params['email'],$pwd);
-                return response()->json($singup,200); 
+                $user = $jwtAuth->checkToken($singup, true);
+                return response()->json(['token' => $singup, 'user' => $user],200); 
         } 
     }
 
