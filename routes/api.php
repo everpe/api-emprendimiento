@@ -19,6 +19,8 @@ Route::post('/user/upload/avatar','UserController@uploadImage');
 Route::get('/user/download/avatar/{filename}','UserController@getImage');
 Route::post('/user/change/status/{id_user}','UserController@changeStatus');
 
+Route::get('/refresh/token/','UserController@refreshToken');
+
 
 
 //Rutas de Test

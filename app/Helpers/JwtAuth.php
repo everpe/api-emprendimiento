@@ -37,7 +37,7 @@ class JwtAuth{
                     'surname'=> $user->surname,
                     'image'=>$user->image,
                     'description'=>$user->description,
-                    'role'=>    $user->role,
+                    // 'role'=>    $user->role,
                     'iat'=>    time(),//creacion del token
                     'exp'=>    time()+(60*60)//tiempo de expiracion del token
                 );
@@ -88,4 +88,22 @@ class JwtAuth{
         return $auth;
     }
 
+
+    public function refreshToken($jwt){
+    
+        try{
+            $jwt=str_replace('Bearer ','',$jwt);
+            //pasa de token a user
+            $user=JWT::decode($jwt,$this->key,['HS256']);  
+            $user=User::find($user->sub);
+            $token=$this->singup($user->email,$user->password);
+            return $token;
+        }catch(\UnexpectedValueException $e){
+            return "error convirtiendo";
+        }catch(\DomainException $e){
+            return "error convirtiendo";
+        }
+        return false;
+        
+    }
 }           
