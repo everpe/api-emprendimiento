@@ -314,7 +314,8 @@ class UserController extends Controller
         $token=$request->header('Authorization');
         $jwtAuth= new \JwtAuth();
         $jwt=$jwtAuth->refreshToken($token);
-        return response()->json($jwt,200);
+        $user = $jwtAuth->checkToken($jwt, true);
+        return response()->json(['token' => $jwt, 'user' => $user],200);
     } 
 
 
