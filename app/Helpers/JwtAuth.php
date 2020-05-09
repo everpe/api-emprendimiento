@@ -89,6 +89,9 @@ class JwtAuth{
     }
 
 
+    /**
+     * Refresca el Token 
+     */
     public function refreshToken($jwt){
     
         try{

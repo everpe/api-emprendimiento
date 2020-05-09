@@ -31,10 +31,10 @@ class ActivityController extends Controller
         {
             if(!empty($params_array)){
                 $validate=\Validator::make($params_array,[
-                    'sectionA'=>'required|numeric|min:0|max:9',
-                    'sectionB'=>'required|numeric|min:0|max:9',
-                    'sectionC'=>'required|numeric|min:0|max:9',
-                    'sectionD'=>'required|numeric|min:0|max:9'
+                    'sectionA'=>'required|numeric|min:0|max:10',
+                    'sectionB'=>'required|numeric|min:0|max:10',
+                    'sectionC'=>'required|numeric|min:0|max:10',
+                    'sectionD'=>'required|numeric|min:0|max:10'
                 ]);
                 if(!$validate->fails()){
                     $activity= new Activity();
