@@ -26,6 +26,28 @@ class UserController extends Controller
     }
 
     /**
+     * Obtiene todos los usuarios que están en el sistema,
+     * Solo el role admin puede listar todos los users.
+     */
+    public function index(Request $request){
+        $userLogged=$this->getUserByToken($request);
+        $userLogged=User::find($userLogged->sub);
+       //Estado del usuario que queremos actualizar
+  
+        if($userLogged->can('list  all tests')){
+            $users=User::all();
+            return response()->json([
+                'code'=>200,'status'=>'success',
+                'users'=>$users
+            ],200);
+        }else{
+            return response()->json([
+                'code'=>401,'status'=>'error',
+                'message'=>'No Autorizado para listar todos los tests'
+            ],401);
+        }
+    } 
+    /**
      * Registra un usuario que envía los parametro por Json formato(x-www-form-urlencoded)
      * @return el json con la respuesta y el codigo.
      */

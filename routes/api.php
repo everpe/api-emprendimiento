@@ -20,7 +20,7 @@ Route::get('/user/download/avatar/{filename}','UserController@getImage');
 Route::post('/user/change/status/{id_user}','UserController@changeStatus');
 
 Route::get('/refresh/token/','UserController@refreshToken');
-
+Route::get('/all/users','UserController@index');
 
 
 //Rutas de Test
