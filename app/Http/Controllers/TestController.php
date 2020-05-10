@@ -324,11 +324,14 @@ class TestController extends Controller
             $a=$sections[0]->pivot->score;
             $d=$sections[1]->pivot->score;
             if($a > $d){
-                $messagge="No tienes una buena Capicidad de ejecución debes trabajar en ello";
+                // $messagge="No tienes una buena Capicidad de ejecución debes trabajar en ello";
+                $messagge='2';
             }elseif($d > $a){
-                $messagge="Tienes buena capacidad de ejecucion";
+                // $messagge="Tienes buena capacidad de ejecucion";
+                $messagge='1';
             }elseif($a == $d){
-                $messagge="Tienes una capacidad de ejecución Neutral";            
+                // $messagge="Tienes una capacidad de ejecución Neutral";          
+                  $messagge='0';
             }
             return $messagge;
         }
