@@ -35,7 +35,8 @@ class UserController extends Controller
        //Estado del usuario que queremos actualizar
   
         if($userLogged->can('list  all tests')){
-            $users=User::all();
+            //lista todos los usuarios excepto el actual.
+            $users=User::all()->where('id', '<>', $userLogged->id);
             return response()->json([
                 'code'=>200,'status'=>'success',
                 'users'=>$users
