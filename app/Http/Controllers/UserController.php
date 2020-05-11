@@ -187,7 +187,7 @@ class UserController extends Controller
     }
 
     /**
-     * Actualiza datos de un usuario previamente loguado por middleware
+     * Actualiza datos de un usuario previamente logueado por middleware
      */
     public function update(Request $request){
         $params_array=$request->all();
@@ -252,7 +252,7 @@ class UserController extends Controller
         return $user;
     }
     /**
-     * Obtiene el usuario por Token pero responde con Json
+     * Ruta me,Obtiene el usuario por Token pero responde con Json
      */
     public function getUser(Request $request){
         //Obtiene el usuario actualente logueado.
@@ -338,6 +338,39 @@ class UserController extends Controller
         return response()->json(['token' => $jwt, 'user' => $user],200);
     } 
 
+    /**
+     * Cambiar esta validación de rol a permiso
+     */
+    public function delete(Request $request,$id){
+        //user logueado que hace la solicitud de eliminación
+        $userLogged=$this->getUserByToken($request);
+        $userLogged=User::where('id',$userLogged->sub)->first();
+
+        //user que se desea eliminar de la bd.
+        $user_delete=User::where('id',$id)->first();
+          
+            if( is_object($user_delete)){
+                if($userLogged->hasRole('administrator')){
+                    $user_delete->delete();
+                    return response()->json([
+                        'status' => 'success','code' => 200,
+                        'messagge' =>'User eliminado correctamente',
+                        'Post'=>$user_delete
+                    ],200);
+                }else{
+                    return response()->json([
+                        'code'=>401,'status'=>'error',
+                        'message'=>'No Autorizado para eliminar un usuario'
+                    ],401);
+                }
+                  
+            }else{
+                return response()->json([
+                    'code'=>400,'status'=>'error',
+                    'message'=>'No se encontró el user que desea eliminar'
+                ],401);
+            } 
+    }
 
 
 }

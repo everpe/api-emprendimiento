@@ -22,6 +22,11 @@ Route::post('/user/change/status/{id_user}','UserController@changeStatus');
 Route::get('/refresh/token/','UserController@refreshToken');
 Route::get('/all/users','UserController@index');
 
+Route::delete('/delete/user/{id}','UserController@delete');
+
+
+
+
 
 //Rutas de Test
 Route::get('/tests','TestController@index');
