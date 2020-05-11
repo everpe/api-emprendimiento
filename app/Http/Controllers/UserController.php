@@ -36,11 +36,8 @@ class UserController extends Controller
   
         if($userLogged->can('list  all tests')){
             //lista todos los usuarios excepto el actual.
-            $users=User::all()->where('id', '<>', $userLogged->id)->load('roles');;
-            return response()->json([
-                'code'=>200,'status'=>'success',
-                'users'=>$users
-            ],200);
+            $users=User::all()->where('id', '<>', $userLogged->id)->load('roles');
+            return response()->json($users,200);
         }else{
             return response()->json([
                 'code'=>401,'status'=>'error',

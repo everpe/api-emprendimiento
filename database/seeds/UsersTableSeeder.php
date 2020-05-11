@@ -28,7 +28,27 @@ class UsersTableSeeder extends Seeder
         $user->password = hash('sha256','user');
         $user->description = "";
         $user->image="general_user.jpeg";
+        $user->assignRole('student');
         $user->save();  
-        // $user->roles()->attach( $role_user);
+
+        $user = new User();
+        $user->name ="user2";
+        $user->surname ="Sanin Gal";
+        $user->email = "userrr@mail.com";
+        $user->password = hash('sha256','user');
+        $user->description = "kjjajajjajajjaja";
+        $user->image="general_user.jpeg";
+        $user->assignRole('student');
+        $user->save();  
+
+        $user = new User();
+        $user->name ="user3";
+        $user->surname ="Saninn Gal";
+        $user->email = "userr3r@mail.com";
+        $user->password = hash('sha256','user');
+        $user->description = "jejejejjeje";
+        $user->image="general_user.jpeg";
+        $user->assignRole('student');
+        $user->save(); 
     }
 }
