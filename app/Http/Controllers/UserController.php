@@ -339,6 +339,7 @@ class UserController extends Controller
     } 
 
     /**
+     * Función para eliminar un usuario de la Bd.
      * Cambiar esta validación de rol a permiso
      */
     public function delete(Request $request,$id){

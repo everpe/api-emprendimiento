@@ -31,9 +31,10 @@ class TestController extends Controller
         $tests=Test::all();
         $sub=$this->getUserLoggedIn($request)->sub;
         $user=$this->getUser($sub);
+        // $quantity_activities=$this->countActivities()
         // hasRole('administrator')
         if($user->can('list  all tests')){
-            $tests=Test::All()->load('user');
+            $tests=Test::All()->load('user')->load('activities');
             return response()->json([
                 'code'=>200,
                 'status'=>'success',
@@ -48,6 +49,14 @@ class TestController extends Controller
         }
     }
 
+
+    /**
+     * Retorna la cantidad de actividades que tiene cada Test
+     */
+    public function countActivities($id_test){
+        $test=Test::where('id',$id_test)->get();
+        return count($test->activities());
+    }
 
     /**
      * Obtiene un El usuario decode logueado necesario para algunos metodos que usan al user.
