@@ -34,7 +34,7 @@ class TestController extends Controller
         // $quantity_activities=$this->countActivities()
         // hasRole('administrator')
         if($user->can('list  all tests')){
-            $tests=Test::All()->load('user')->load('activities');
+            $tests=Test::All()->load('user')->load('activities')->where('state', true);
             return response()->json([
                 'code'=>200,
                 'status'=>'success',
@@ -357,7 +357,7 @@ class TestController extends Controller
         //El usuario que está logueado
         $user=$this->getUserLoggedIn($request);
 
-        $tests=Test::where('user_id',$user->sub)->get();
+        $tests=Test::where('user_id',$user->sub)->where('state', true)->get();
         if(count($tests)>0){
             return response()->json([
                 'code'=>200,

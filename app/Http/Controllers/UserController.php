@@ -126,7 +126,12 @@ class UserController extends Controller
             $pwd=hash('sha256',$params['password']);
                 $singup=$jwtAuth->singup($params['email'],$pwd);
                 $user = $jwtAuth->checkToken($singup, true);
-                return response()->json(['token' => $singup, 'user' => $user],200); 
+                $user_full = User::findOrFail($user->sub);
+                $roles = $user_full->getRoleNames();
+
+                return response()->json(['token' => $singup, 
+                                        'user' => $user, 
+                                        'roles' => $roles],200); 
         } 
     }
 
