@@ -13,10 +13,10 @@ class JwtAuth{
         $this->key="esto_es_una_clave_super_secreta_-99887766";    
     }
 
-/**
- * Retorna el token del usuario identificado o si se le envia un,
- * segundo parametro true, devuelve los datos de ese usuario logueado. 
- */
+    /**
+     * Retorna el token del usuario identificado o si se le envia un,
+     * segundo parametro true, devuelve los datos de ese usuario logueado. 
+     */
     public function singup($email,$password){
         //Busca un usuario con ese email y contraseña
         $user=User::where([

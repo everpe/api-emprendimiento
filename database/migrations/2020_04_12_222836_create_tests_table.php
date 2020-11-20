@@ -19,13 +19,15 @@ class CreateTestsTable extends Migration
             $table->string('type');
             $table->boolean('state')->default(0);
             $table->text('interpretation');
-            //la foranea del user
-            $table->unsignedBigInteger('user_id');
             $table->timestamps();
+
+            //la foranea del user
+            $table->unsignedBigInteger('user_id');            
             $table->foreign('user_id')
-            ->references('id')->on('users')
-            ->onDelete('cascade')
-            ->onUpdate('cascade'); 
+                        ->references('id')->on('users')
+                        ->onDelete('cascade')
+                        ->onUpdate('cascade'); 
+
         });
     }
 

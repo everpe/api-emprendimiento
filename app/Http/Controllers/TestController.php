@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Test;
-
 use App\Activity;
 use App\User;
+use App\Maslow;
 use Illuminate\Http\Request;
 use App\Helpers\JwtAuth;
 use Firebase\JWT\JWT;
@@ -49,7 +49,6 @@ class TestController extends Controller
         }
     }
 
-
     /**
      * Retorna la cantidad de actividades que tiene cada Test
      */
@@ -75,11 +74,14 @@ class TestController extends Controller
         }
         return false;
     }
+
+    // ********************HERRMANN********************HERRMANN********************HERRMANN*******************//
     /**
      * Obtiene el user logueado, Crea un Test de Herrmann en blanco,
      * y se lo asigna a ese user logueado.
      */
-    public function createHerrmann(Request $request){
+    public function createHerrmann(Request $request)
+    {
         $user=$this->getUserLoggedIn($request);
 
         $test= new Test();
@@ -89,26 +91,181 @@ class TestController extends Controller
         $test->user_id=$user->sub;
         $test->interpretation='Not Interpreted Yet';
         //Obtengo cantidad de test del user logueado
-        $tests=$this->getLengthTestsUser($request);
+        $tests=$this->getLengthTestsUser($request, 'Test De Herrmann');
         if($tests>=3){
-           $this->deleteOldestTest($user->sub);
+           $this->deleteOldestTest($user->sub, 'Test De Herrmann');
         }
         $test->save();
         $data=[
             'code'=>200,
             'status'=>'success',
-            'messagge'=>'Has creado Un test Herrmann para resolver:Exitos',
+            'messagge'=>'Has creado un test Herrmann, para resolver: ¡Exitos!',
             'id_test_creado'=>$test->id,
-            'length_test_existing'=>$this->getLengthTestsUser($request)
+            'length_test_existing'=>$this->getLengthTestsUser($request, 'Test De Herrmann')
         ];
-        return response()->json($data,$data['code']);  
+
+        return response()->json($data, $data['code']);  
     }
 
-/**
- * Define los puntajes totales de cada actividad,
- * e interpreta esos puntajes en un mensaje 
- */
-    public function interpretHerrmann($id_test){
+    // ****************MASLOW****************MASLOW****************MASLOW****************MASLOW****************//
+    /**
+     * Obtiene el user logueado, Crea un Test de la píramide de Maslow en blanco,
+     * y se lo asigna a ese user logueado.
+     */
+    public function createMaslow(Request $request)
+    {
+        $user = $this->getUserLoggedIn($request);
+        $test = new Test();
+        $test->name = 'Pirámide De Maslow';
+        $test->type = 'CREATIVIDAD';
+        $test->state = 0;
+        $test->user_id = $user->sub;
+        $test->interpretation = 'Not Interpreted Yet';
+        $tests = $this->getLengthTestsUser($request, 'Pirámide De Maslow');
+        if($tests >= 3){
+            $this->deleteOldestTest($user->sub, 'Pirámide De Maslow');
+        }
+        $test->save();
+
+        $data=[
+            'code'=>200,
+            'status'=>'success',
+            'messagge'=>'Has creado Un test Maslow, para resolver: ¡Exitos!',
+            'id_test_creado'=>$test->id,
+            'length_test_existing'=>$this->getLengthTestsUser($request, 'Pirámide De Maslow')
+        ];
+
+        return response()->json($data, $data['code']);  
+    }
+
+    /**
+     * Realiza la combinación de las ideas aterrizada y las locas 
+     * para generar las ideas de cielo azul.
+     */
+    public function combinateBlueSky($id_test)
+    {
+        $activities = Activity::where([
+            ['test_id', '=', $id_test],['name', '=', 'Agregar Ideas']
+        ])->get();
+        $combinations = $this->getCombinations($activities);
+
+        if($combinations != null) // Si se realizaron las combinaciones correctamente.
+        {
+            $maslow = new Maslow();
+            $maslow->combinations = $combinations;
+            $maslow->test_id = $id_test;
+            $maslow->save();
+            $test = Test::find($id_test);
+            $test->maslow->maslow = $maslow;
+            $test->save();
+
+            return response()->json(['combinations' => $combinations], 200);
+        }
+        
+        return response()->json(['error' => 'Error haciendo las combinaciones'], 400);
+    }
+
+    /**
+     * Obtiene una lista con la combinación de ideas aterrizadas con ideas locas.
+     * @param activities Actuvidades que tiene el test de maslow.
+     */
+    public function getCombinations($activities)
+    {
+        if(count($activities) == 2) // Debe tener dos actividades exactamente realizadas.
+        {
+            //en cada posición guarda las secciones de cada actividad
+            $sections = array();
+            $cont = 0;
+            foreach($activities as $activity)
+            {        
+                $sections[$cont] = $activity->sections;
+                $cont ++;
+            }
+            //se guarda en variables todas las secciones de cada actividad
+            $sectionGroundedIdeas = $sections[0]; // Ideas aterrizadas
+            $sectionSpacedOutIdeas = $sections[1]; // Ideas Locas
+
+            $number_ideas = 5; //El número de ideas que se deben introducir son 5.
+            $count = 0;
+            $combinations = [];
+
+            for ($i=0; $i < $number_ideas; $i++) // Por cada idea aterrizada.
+            { 
+                for ($j=0; $j < $number_ideas; $j++) // Por cada idea loca.
+                {
+                    $combinations[$count] = $sectionGroundedIdeas[$i]->pivot->score_txt . 
+                                            ' + ' . $sectionSpacedOutIdeas[$j]->pivot->score_txt;
+                    $count ++;
+                }
+            }
+
+            return $combinations;
+        }
+
+        return null;
+    }
+
+    /**
+     * Registra en la base de datos las ideas de cielo azul seleccionadas por el usuario.
+     */
+    public function confirmBlueSky(Request $request, $id_test)
+    {
+        $test = Test::find($id_test);
+        $maslow = $test->maslow;
+        // Ideas seleccionadas por el usuario.
+        $blue_sky_ideas = array_values($request->all());
+        $maslow->selected = $blue_sky_ideas;
+        $maslow->save();
+
+        return response()->json(["blue_sky" => $blue_sky_ideas, 'code' => 200], 200);
+    }
+
+    /**
+     * Obtiene las ideas de cielo azul seleccionadas que le corresponden a un test.
+     */
+    public function getBlueSky($id_test)
+    {
+        $test = Test::find($id_test);
+        $maslow = $test->maslow;
+        $blue_sky = $maslow->selected;
+
+        return response()->json(['blue_sky' => $blue_sky, 'code' => 200], 200);
+    }
+
+    /**
+     * Completa el test de maslow al agregar a la base de datos la explicación
+     * que da el usuario sobre las 5 ideas de cielo azul seleccionadas.
+     */
+    public function completeMaslow(Request $request, $id_test)
+    {
+        $explanations = $request->input('explanation');
+        $test = Test::find($id_test);
+        $maslow = $test->maslow;
+        $maslow->explanation = $explanations;
+        $maslow->save();
+
+        return response()->json(['message' => 'sucesfull', 'code' => 200], 200);
+    }
+
+    public function getResultsMaslow($id_test)
+    {
+        $test = Test::find($id_test);
+        $maslow = $test->maslow;
+        $selected = $maslow->selected;
+        $explanation = $maslow->explanation;
+
+        return response()->json(['selected' => $selected, 'explanation' => $explanation, 'code' => 200], 200);
+    }
+    
+
+    // ------------MASLOW------------MASLOW------------MASLOW------------MASLOW------------MASLOW------------ //
+
+    /**
+     * Define los puntajes totales de cada actividad,
+     * e interpreta esos puntajes en un mensaje 
+     */
+    public function interpretHerrmann($id_test)
+    {
         $activities= Activity::where([
             ['test_id', '=', $id_test],['name', '=', 'Seleccionar Palabras']
         ])->get();
@@ -190,7 +347,6 @@ class TestController extends Controller
         }
         return null;
     }
-
 
     /**
      * Interpreta los puntajes totales de cada sección para dar una interpretación textual a la 
@@ -372,8 +528,7 @@ class TestController extends Controller
                 'nameUser'=>$user->name,
                 'Tests'=>$tests
             ],200);
-        }
-        
+        }        
     }
 
     /**
@@ -413,8 +568,10 @@ class TestController extends Controller
     /**
      * Borrar el test más antiguo solo si ya tiene el limite de 3 test po user 
      */
-    public function deleteOldestTest($id_user){
-        $firstTest=Test::where('user_id', '=', $id_user)->first();
+    public function deleteOldestTest($id_user, $test_type)
+    {
+        $firstTest = Test::where('user_id', '=', $id_user)
+                            ->where('type', $test_type)->first();
         $firstTest->delete();
         return $firstTest;
     }
@@ -424,10 +581,15 @@ class TestController extends Controller
      * Obtiene la cantidad de Tests que tiene un User,
      * Metodo para la opción de eliminar un test cuando se alcance el limite de 3.
      */
-    public function getLengthTestsUser(Request $request){
-        $user=$this->getUserLoggedIn($request);
-        $tests=Test::where('user_id',$user->sub)->get()->all();
-            return count($tests);
+    public function getLengthTestsUser(Request $request, $test_type)
+    {
+        $user = $this->getUserLoggedIn($request);
+
+        $tests = Test::where('user_id',$user->sub)
+                        ->where('type', $test_type)
+                        ->get()->all();
+            
+        return count($tests);
     }
 
 }

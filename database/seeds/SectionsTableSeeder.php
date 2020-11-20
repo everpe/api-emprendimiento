@@ -27,5 +27,9 @@ class SectionsTableSeeder extends Seeder
         $section->name ="D";
         $section->save();  
 
+        $section = new Section();
+        $section->name ="E";
+        $section->save();
+
     }
 }

@@ -15,9 +15,11 @@ class Activity extends Model
     }
 
     /**
-     * Una actividad tiene muchas secciones: A,B,C,D
+     * Una actividad tiene muchas secciones: A,B,C,D,...
      */
-    public function sections() {
-        return $this->belongsToMany('App\Section')->withPivot('score');
+    public function sections() 
+    {
+        return $this->belongsToMany('App\Section')
+                    ->withPivot('score', 'score_txt');
     }
 }

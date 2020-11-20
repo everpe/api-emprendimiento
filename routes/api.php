@@ -30,16 +30,27 @@ Route::delete('/delete/user/{id}','UserController@delete');
 
 //Rutas de Test
 Route::get('/tests','TestController@index');
+// Herrmann
 Route::post('/create/herrmann','TestController@createHerrmann');
 Route::post('/interpret/herrmann/{id_test}','TestController@interpretHerrmann');
+// Maslow
+Route::post('/create/maslow', 'TestController@createMaslow');
+Route::post('add/activity/maslow/{id_test}', 'ActivityController@addActivityMaslow');
+Route::get('/bluesky/maslow/{id_test}', 'TestController@combinateBlueSky');
+Route::post('/confirm/bluesky/maslow/{id_test}', 'TestController@confirmBlueSky');
+Route::get('/five/bluesky/maslow/{id_test}', 'TestController@getBlueSky');
+Route::post('/complete/maslow/{id_test}', 'TestController@completeMaslow');
+Route::get('/results/maslow/{id_test}', 'TestController@getResultsMaslow');
+
 //Saca todos los tests por user Logueado
 Route::get('/tests/by/user','TestController@getTestsByUser');
 Route::delete('/delete/test/{id_test}','TestController@deleteTest');
 
 //RUTAS ACTIVITY
-Route::post('/add/activity/{id_test}',
-            'ActivityController@addActivityHerrmann');
+// Herrmann
+Route::post('/add/activity/{id_test}', 'ActivityController@addActivityHerrmann');
 Route::post('/add/hemisphere/{id_test}','ActivityController@addHemisphereHerrmann');
+
 ///RUTAS ROLE
 Route::post('/add/role/{id_user}/{name_role}','RoleController@addRole');
 Route::delete('/delete/role/{id_user}/{name_role}','RoleController@deleteRole');

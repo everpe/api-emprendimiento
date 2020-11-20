@@ -14,22 +14,25 @@ use App\Helpers\JwtAuth;
 
 class ActivityController extends Controller
 {
-
-    public function __construct(){
+    public function __construct()
+    {
         $this->middleware('api.auth');
     }
+
+    // ********************HERRMANN********************HERRMANN********************HERRMANN*******************//
     /**
      * Crea una actividad con el puntaje de cada sección que viene en el request,
      *  y agrega esa actividad a un test ya creado. 
      */
-    public function addActivityHerrmann($id_herrmann,Request $request){
+    public function addActivityHerrmann($id_herrmann, Request $request){
         $params_array=$request->all();
 
         //validar que ese test no tenga ya todas las actividades agregadas
-        $test= Test::find($id_herrmann);
+        $test = Test::find($id_herrmann);
         if(count($test->activities)<4)
         {
             if(!empty($params_array)){
+
                 $validate=\Validator::make($params_array,[
                     'sectionA'=>'required|numeric|min:0|max:10',
                     'sectionB'=>'required|numeric|min:0|max:10',
@@ -41,34 +44,107 @@ class ActivityController extends Controller
                     $activity->name="Seleccionar Palabras";
                     $activity->test_id=$id_herrmann;
                     $activity->save();
-                    $activity->sections()->attach( 1,['score'=>$params_array['sectionA']]);//$params->sectionA]);
-                    $activity->sections()->attach( 2,['score'=>$params_array['sectionB']]);//$params->sectionB]);
-                    $activity->sections()->attach( 3,['score'=>$params_array['sectionC']]);//$params->sectionC]);
-                    $activity->sections()->attach( 4,['score'=>$params_array['sectionD']]);//$params->sectionD]);
-                    $data=[
+                    $activity->sections()->attach(1, ['score'=>$params_array['sectionA']]);//$params->sectionA]);
+                    $activity->sections()->attach(2, ['score'=>$params_array['sectionB']]);//$params->sectionB]);
+                    $activity->sections()->attach(3, ['score'=>$params_array['sectionC']]);//$params->sectionC]);
+                    $activity->sections()->attach(4, ['score'=>$params_array['sectionD']]);//$params->sectionD]);
+                    $data = [
                         'code'=>200,
                         'status'=>'success',
-                        'messagge'=>"se creó una Actividad para el test",];
+                        'messagge'=>"se creó una Actividad para el test"
+                    ];
                 }else{
-                    $data=[
+                    $data = [
                         'code'=>400,
                         'status'=>'error',
                         'messagge'=>"Score de Actividades Incorrectos",
-                        'errors'=>$validate->errors()];
+                        'errors'=>$validate->errors()
+                    ];
                 }
             }else{
-                $data=[
+                $data = [
                     'code'=>400,
                     'status'=>'error',
-                    'messagge'=>"Valores Vacios",];
+                    'messagge'=>"Valores Vacios",
+                ];
             }
         }else{
             $data=[
                 'code'=>400,
                 'status'=>'error',
-                'messagge'=>"Ese Test Ya tiene 3 Actividades",];
+                'messagge'=>"El Test Ya tiene 3 Actividades",];
         }
-        return response()->json($data,$data['code']);
+
+        return response()->json($data, $data['code']);
+    }
+
+    // ****************MASLOW****************MASLOW****************MASLOW****************MASLOW****************//
+    public function addActivityMaslow($id_maslow, Request $request)
+    {
+        $params_array=$request->all();
+
+        //validar que ese test no tenga ya todas las actividades agregadas
+        $test = Test::find($id_maslow);
+        if(count($test->activities)<4)
+        {
+            if(!empty($params_array))
+            {
+                $validate=\Validator::make($params_array,[
+                    'idea1'=>'required',
+                    'idea2'=>'required',
+                    'idea3'=>'required',
+                    'idea4'=>'required',
+                    'idea5'=>'required'
+                ]);
+
+                if(!$validate->fails()) // No falla la validación.
+                {
+                    $activity = new Activity();
+                    $activity->name = "Agregar Ideas";
+                    $activity->test_id = $id_maslow;
+                    $activity->save();
+
+                    $activity->sections()->attach(1, ['score_txt'=>$params_array['idea1']]);
+                    $activity->sections()->attach(2, ['score_txt'=>$params_array['idea2']]);
+                    $activity->sections()->attach(3, ['score_txt'=>$params_array['idea3']]);
+                    $activity->sections()->attach(4, ['score_txt'=>$params_array['idea4']]);
+                    $activity->sections()->attach(5, ['score_txt'=>$params_array['idea5']]);
+
+                    $data = [
+                        'code'=> 200,
+                        'status'=> 'success',
+                        'messagge'=> "se creó una Actividad para el test",
+                    ];
+                }
+                else
+                {
+                    $data = [
+                        'code' => 400,
+                        'status' => 'error',
+                        'messagge' => "Score de Actividades Incorrectos",
+                        'errors' => $validate->errors()
+                    ];
+                }
+            }
+            else
+            {
+                $data = [
+                    'code' => 400,
+                    'status' => 'error',
+                    'messagge' => "Valores Vacios",
+                ]; 
+            }
+        }
+        else
+        {
+            $data=[
+                'code' => 400,
+                'status' => 'error',
+                'messagge' => "El Test Ya tiene 3 Actividades"
+            ];
+        }
+
+        return response()->json($data, $data['code']);
     }
     
     /**
