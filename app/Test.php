@@ -30,4 +30,12 @@ class Test extends Model
     {
         return $this->hasOne('App\Maslow');
     }
+
+    /**
+     * Un test puede tener un lienzo.
+     */
+    public function lienzo()
+    {
+        return $this->hasOne('App\Lienzo');
+    }
 }

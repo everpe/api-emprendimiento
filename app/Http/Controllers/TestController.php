@@ -6,6 +6,7 @@ use App\Test;
 use App\Activity;
 use App\User;
 use App\Maslow;
+use App\Lienzo;
 use Illuminate\Http\Request;
 use App\Helpers\JwtAuth;
 use Firebase\JWT\JWT;
@@ -33,20 +34,31 @@ class TestController extends Controller
         $user=$this->getUser($sub);
         // $quantity_activities=$this->countActivities()
         // hasRole('administrator')
-        if($user->can('list  all tests')){
-            $tests=Test::All()->load('user')->load('activities')->where('state', true);
+        // if($user->can('list all tests')){
+            $tests=Test::All()->load('user');
             return response()->json([
                 'code'=>200,
                 'status'=>'success',
-                'tests'=>$tests
+                'tests'=>$tests,
+                // 'users' => $tests->user
             ],200);
-        }else{
-            return response()->json([
-                'code'=>401,
-                'status'=>'error',
-                'message'=>'Solo El Admin tiene permisos'
-            ],401);
-        }
+        // }else{
+        //     return response()->json([
+        //         'code'=>401,
+        //         'status'=>'error',
+        //         'message'=>'Solo El Admin tiene permisos'
+        //     ],401);
+        // }
+    }
+
+    public function show($id_test)
+    {
+        $test = Test::find($id_test);
+        return response()->json([
+            'code'=>200,
+            'status'=>'success',
+            'test'=>$test,
+        ],200);
     }
 
     /**
@@ -74,6 +86,97 @@ class TestController extends Controller
         }
         return false;
     }
+
+    // ****************LIENZO****************LIENZO****************LIENZO****************LIENZO****************//
+    public function createLienzo(Request $request)
+    {
+        $user=$this->getUserLoggedIn($request);
+        $test= new Test();
+        $test->name="Lienzo Propuesta-Valor";
+        $test->type="FACTIBILIDAD";
+        $test->state=0;
+        $test->user_id=$user->sub;
+        $test->interpretation='Not Interpreted Yet';
+        // $lienzo = new Lienzo();
+        // $test->lienzo = $lienzo;
+        //Obtengo cantidad de test del user logueado
+        $tests=$this->getLengthTestsUser($request, 'Lienzo Propuesta-Valor');
+        if($tests>=3){
+           $this->deleteOldestTest($user->sub, 'Lienzo Propuesta-Valor');
+        }
+        $test->save();
+
+        $data=[
+            'code'=>200,
+            'status'=>'success',
+            'messagge'=>'Has creado un test del liezo propuesta-valor, para resolver: ¡Exitos!',
+            'id_test_creado'=>$test->id,
+            'length_test_existing'=>$this->getLengthTestsUser($request, 'Lienzo Propuesta-Valor')
+        ];
+
+        return response()->json($data, $data['code']);  
+    }
+
+    /**
+     * Obtiene la información actual del lienzo que le corresponden a un test.
+     */
+    public function getInformationLienzo($id_test)
+    {
+        $test = Test::find($id_test);
+        $lienzo = $test->lienzo;
+        $activity = Activity::where([
+            ['test_id', '=', $id_test],['name', '=', 'Agregar tematica']
+        ])->get();
+
+        $section = $activity[0]->sections;
+        $tematica = $section[0]->pivot->score_txt;
+
+        if($lienzo)
+        {
+            return response()->json(['lienzo' => $lienzo, 'tematica' => $tematica, 'code' => 200], 200);
+        }
+
+        return response()->json(['error' => 'vacio','tematica' => $tematica, 'code' => 200], 200);
+    }
+
+    public function saveLienzo($id_test, Request $request)
+    {
+        $info = $request->all();
+        $test = Test::find($id_test);
+        $test->state = 1;
+        $lienzo = $test->lienzo;
+        if($lienzo)
+        {
+            $lienzo->op1 = $info['op1'];
+            $lienzo->op2 = $info['op2'];
+            $lienzo->op3 = $info['op3'];
+            $lienzo->op4 = $info['op4'];
+            $lienzo->op5 = $info['op5'];
+            $lienzo->op6 = $info['op6'];
+            $lienzo->test_id = $id_test;
+            $lienzo->save();
+        }
+        else
+        {
+            $lienzo = new Lienzo();
+            $lienzo->op1 = $info['op1'];
+            $lienzo->op2 = $info['op2'];
+            $lienzo->op3 = $info['op3'];
+            $lienzo->op4 = $info['op4'];
+            $lienzo->op5 = $info['op5'];
+            $lienzo->op6 = $info['op6'];
+            $lienzo->test_id = $id_test;
+            $lienzo->save();
+            // $test->lienzo = $lienzo;
+            // $test->save();
+        }
+
+        return response()->json(['lienzo' => $lienzo, 'code' => 200], 200);
+        // return response()->json(['code' => 200], 200);
+    }
+
+    //----------------LIENZO----------------LIENZO----------------LIENZO----------------LIENZO----------------//
+
 
     // ********************HERRMANN********************HERRMANN********************HERRMANN*******************//
     /**
@@ -239,22 +342,34 @@ class TestController extends Controller
     public function completeMaslow(Request $request, $id_test)
     {
         $explanations = $request->input('explanation');
+        $names = $request->input('names');
         $test = Test::find($id_test);
+        $test->state = 1;
+        $test->save();
         $maslow = $test->maslow;
         $maslow->explanation = $explanations;
+        $maslow->names = $names;        
         $maslow->save();
 
         return response()->json(['message' => 'sucesfull', 'code' => 200], 200);
     }
 
+    /**
+     * Obtiene el resultado de la actividad de Maslow.
+     */
     public function getResultsMaslow($id_test)
     {
         $test = Test::find($id_test);
         $maslow = $test->maslow;
         $selected = $maslow->selected;
         $explanation = $maslow->explanation;
+        $names = $maslow->names;
 
-        return response()->json(['selected' => $selected, 'explanation' => $explanation, 'code' => 200], 200);
+        return response()->json([
+            'selected' => $selected, 
+            'names' => $names,
+            'explanation' => $explanation, 
+            'code' => 200], 200);
     }
     
 

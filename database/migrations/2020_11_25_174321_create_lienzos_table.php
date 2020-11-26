@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMaslowsTable extends Migration
+class CreateLienzosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,14 @@ class CreateMaslowsTable extends Migration
      */
     public function up()
     {
-        Schema::create('maslows', function (Blueprint $table) {
+        Schema::create('lienzos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->json('combinations')->nullable();
-            $table->json('selected')->nullable();
-            $table->json('explanation')->nullable();
-            $table->json('names')->nullable();
+            $table->json('op1')->nullable();
+            $table->json('op2')->nullable();
+            $table->json('op3')->nullable();
+            $table->json('op4')->nullable();
+            $table->json('op5')->nullable();
+            $table->json('op6')->nullable();
             $table->timestamps();
 
             // Una interpretación de Maslow pertenece a un Test.
@@ -37,6 +39,6 @@ class CreateMaslowsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('maslows');
+        Schema::dropIfExists('lienzos');
     }
 }

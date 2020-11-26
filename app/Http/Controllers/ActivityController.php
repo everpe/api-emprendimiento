@@ -78,6 +78,69 @@ class ActivityController extends Controller
         return response()->json($data, $data['code']);
     }
 
+    // ************LIENZO************LIENZO************LIENZO************LIENZO************//
+    public function addActivityLienzo($id_lienzo, Request $request)
+    {
+        $params_array=$request->all();
+        //validar que ese test no tenga ya todas las actividades agregadas
+        $test = Test::find($id_lienzo);
+        if(count($test->activities)<4)
+        {
+            if(!empty($params_array))
+            {
+                $validate=\Validator::make($params_array,[
+                    'tematica'=>'required'
+                ]);
+
+                if(!$validate->fails()) // No falla la validación.
+                {
+                    $activity = new Activity();
+                    $activity->name = "Agregar tematica";
+                    $activity->test_id = $id_lienzo;
+                    $activity->save();
+
+                    $activity->sections()->attach(1, ['score_txt'=>$params_array['tematica']]);
+
+                    $data = [
+                        'code'=> 200,
+                        'status'=> 'success',
+                        'messagge'=> "se creó una Actividad para el test",
+                    ];
+                }
+                else
+                {
+                    $data = [
+                        'code' => 400,
+                        'status' => 'error',
+                        'messagge' => "Score de Actividades Incorrectos",
+                        'errors' => $validate->errors()
+                    ];
+                }
+            }
+            else
+            {
+                $data = [
+                    'code' => 400,
+                    'status' => 'error',
+                    'messagge' => "Valores Vacios",
+                ]; 
+            }
+        }
+        else
+        {
+            $data=[
+                'code' => 400,
+                'status' => 'error',
+                'messagge' => "El Test Ya tiene todas las Actividades"
+            ];
+        }
+
+        return response()->json($data, $data['code']);
+    }
+
+
+    //---------LIENZO---------LIENZO---------LIENZO---------LIENZO---------LIENZO---------//
+
     // ****************MASLOW****************MASLOW****************MASLOW****************MASLOW****************//
     public function addActivityMaslow($id_maslow, Request $request)
     {

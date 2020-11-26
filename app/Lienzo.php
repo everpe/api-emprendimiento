@@ -4,18 +4,19 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Maslow extends Model
+class Lienzo extends Model
 {
-
     /**
      * Convirtiendo los campos de json -> array.
      * ya que deben ser arreglos de strings.
      */
     protected $casts = [
-        'combinations' => 'array',
-        'selected' => 'array',
-        'explanation' => 'array',
-        'names' => 'array'
+        'op1' => 'array',
+        'op2' => 'array',
+        'op3' => 'array',
+        'op4' => 'array',
+        'op5' => 'array',
+        'op6' => 'array',
     ];
 
     /**
